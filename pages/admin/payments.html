@@ -71,11 +71,11 @@
           });
         });
         Array.from(document.querySelectorAll('[data-paid]')).forEach(b => {
-          b.addEventListener('click', () => {
+          b.addEventListener('click', async () => {
             const id = Number(b.getAttribute('data-paid'));
             const c = state.customers.find(x => x.id === id);
             if (confirm(`Confirm payment Rs. ${calculateMonthlyBill(c)} for ${c.name}?`)) {
-              recordPayment(id, calculateMonthlyBill(c), 'Cash');
+              await recordPayment(id, calculateMonthlyBill(c), 'Cash');
               alert('Payment recorded');
               renderPayments();
             }
@@ -101,12 +101,12 @@
       renderUnpaid();
       renderPayments();
 
-      document.getElementById('btn-add-payment').addEventListener('click', () => {
+      document.getElementById('btn-add-payment').addEventListener('click', async () => {
         const cid = prompt('Customer ID');
         const amount = prompt('Amount (Rs)');
         const method = prompt('Method (Cash/Online/Bank Transfer)', 'Cash');
         if (!cid || !amount) { alert('Please fill all fields'); return; }
-        recordPayment(Number(cid), Number(amount), method || 'Cash');
+        await recordPayment(Number(cid), Number(amount), method || 'Cash');
         renderPayments();
         alert('Payment added');
       });

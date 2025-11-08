@@ -47,10 +47,10 @@
           </div>
         `).join('');
         Array.from(document.querySelectorAll('[data-deliver]')).forEach(b => {
-          b.addEventListener('click', () => {
+          b.addEventListener('click', async () => {
             const id = Number(b.getAttribute('data-deliver'));
             if (confirm('Mark this order as delivered?')) {
-              markOrderDelivered(id);
+              await markOrderDelivered(id);
               renderOrders();
               alert('Order marked as delivered');
             }
@@ -59,11 +59,11 @@
       }
       renderOrders();
 
-      document.getElementById('btn-add-order').addEventListener('click', () => {
+      document.getElementById('btn-add-order').addEventListener('click', async () => {
         const customerId = prompt('Enter Customer ID');
         const qty = prompt('Enter quantity');
         if (!customerId || !qty || Number(qty) <= 0) { alert('Please enter valid values'); return; }
-        placeOrder(Number(customerId), Number(qty));
+        await placeOrder(Number(customerId), Number(qty));
         renderOrders();
         alert('Order added successfully');
       });

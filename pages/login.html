@@ -66,7 +66,7 @@
     </div>
 
     <script type="module">
-      import { state, setUserType, setCurrentUser } from '../assets/js/state.js';
+      import { loginAdmin, loginCustomer } from '../assets/js/state.js';
       const tabAdmin = document.getElementById('tab-admin');
       const tabCustomer = document.getElementById('tab-customer');
       const labelUsername = document.getElementById('label-username');
@@ -113,40 +113,37 @@
         togglePassword.textContent = passwordInput.type === 'password' ? 'Show' : 'Hide';
       });
 
-      loginBtn.addEventListener('click', () => {
+      loginBtn.addEventListener('click', async () => {
         setError('');
         const u = usernameInput.value.trim();
         const p = passwordInput.value.trim();
         if (!u || !p) { setError('Please enter all credentials'); return; }
 
         if (loginType === 'admin') {
-          if (u === state.adminCredentials.username && p === state.adminCredentials.password) {
-            setUserType('admin');
+          try {
+            await loginAdmin(u, p);
             window.location.href = new URL('./admin/dashboard.html', window.location.href).href;
-          } else { setError('Invalid admin credentials!'); }
+          } catch (e) { setError('Invalid admin credentials!'); }
         } else {
-          const customer = state.customers.find(c => c.phone === u && c.password === p);
-          if (customer) {
-            setCurrentUser(customer);
-            setUserType('customer');
+          try {
+            await loginCustomer(u, p);
             window.location.href = new URL('./customer/dashboard.html', window.location.href).href;
-          } else { setError('Invalid customer credentials!'); }
+          } catch (e) { setError('Invalid customer credentials!'); }
         }
       });
 
       // Admin settings modal
       openAdminModal.addEventListener('click', () => {
-        adminUsername.value = state.adminCredentials.username;
+        adminUsername.value = 'admin';
         adminModal.style.display = 'flex';
       });
       closeAdminModal.addEventListener('click', () => { adminModal.style.display = 'none'; });
       saveAdminPassword.addEventListener('click', () => {
         const newPass = adminNewPassword.value.trim();
         if (newPass.length < 4) { setError('Password must be at least 4 characters long'); return; }
-        state.adminCredentials.password = newPass;
         setError('');
         adminModal.style.display = 'none';
-        alert('Admin password updated successfully!');
+        alert('Please update admin password via the backend admin tools.');
       });
 
       // Enter to submit

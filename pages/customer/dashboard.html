@@ -109,10 +109,10 @@
       document.getElementById('order-close').addEventListener('click', () => { document.getElementById('order-overlay').classList.add('hidden'); });
       document.getElementById('order-qty').addEventListener('input', updateTotal);
       function updateTotal() { const qty = Number(document.getElementById('order-qty').value || 1); document.getElementById('order-total').textContent = `Rs. ${qty * PRICE_PER_BOTTLE}`; }
-      document.getElementById('order-confirm').addEventListener('click', () => {
+      document.getElementById('order-confirm').addEventListener('click', async () => {
         const qty = Number(document.getElementById('order-qty').value || 1);
         if (qty < 1) { alert('Please enter a valid quantity'); return; }
-        placeOrder(user.id, qty);
+        await placeOrder(user.id, qty);
         document.getElementById('order-overlay').classList.add('hidden');
         alert('Order placed successfully');
         renderOrders();

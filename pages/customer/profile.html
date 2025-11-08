@@ -71,11 +71,11 @@
       hydrate();
 
       btnBack.addEventListener('click', () => { location.href = new URL('./dashboard.html', window.location.href).href; });
-      btnSave.addEventListener('click', () => {
+      btnSave.addEventListener('click', async () => {
         if (!fName.value.trim() || !fAddress.value.trim() || !fCity.value.trim()) { alert('Please fill in all required fields.'); return; }
         const updated = { ...user, name: fName.value.trim(), email: fEmail.value.trim(), address: fAddress.value.trim(), city: fCity.value.trim(), currentLocation: fLocation.value.trim() };
         setCurrentUser(updated);
-        updateCustomer(updated);
+        await updateCustomer(updated);
         alert('Profile updated successfully');
         location.href = new URL('./dashboard.html', window.location.href).href;
       });

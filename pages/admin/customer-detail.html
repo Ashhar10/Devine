@@ -135,18 +135,18 @@
         window.open(url, '_blank');
       });
 
-      document.getElementById('btn-record-payment').addEventListener('click', () => {
-        recordPayment(customer.id, calculateMonthlyBill(customer), 'Cash');
-        customer = state.customers.find(c => c.id === id);
+      document.getElementById('btn-record-payment').addEventListener('click', async () => {
+        await recordPayment(customer.id, calculateMonthlyBill(customer), 'Cash');
+        customer = state.customers.find(c => c.id === id) || customer;
         alert('Payment recorded');
         renderHeader();
         renderHistory();
       });
 
-      document.getElementById('btn-add-delivery').addEventListener('click', () => {
+      document.getElementById('btn-add-delivery').addEventListener('click', async () => {
         const qty = Number(document.getElementById('delivery-qty').value || 1);
         if (qty < 1) { alert('Please enter a valid quantity'); return; }
-        addDelivery(customer.id, qty);
+        await addDelivery(customer.id, qty);
         customer = state.customers.find(c => c.id === id);
         alert('Delivery recorded');
         renderHeader();

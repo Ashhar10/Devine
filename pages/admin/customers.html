@@ -123,10 +123,10 @@
           </tr>
         `).join('');
         Array.from(document.querySelectorAll('[data-del]')).forEach(b => {
-          b.addEventListener('click', () => {
+          b.addEventListener('click', async () => {
             const id = Number(b.getAttribute('data-del'));
             if (confirm('This customer will be deleted permanently. Continue?')) {
-              deleteCustomer(id);
+              await deleteCustomer(id);
               renderCustomers();
               alert('Customer deleted successfully');
             }
@@ -138,7 +138,7 @@
 
       openAdd.addEventListener('click', () => { addModal.classList.remove('hidden'); });
       closeAdd.addEventListener('click', () => { addModal.classList.add('hidden'); });
-      addBtn.addEventListener('click', () => {
+      addBtn.addEventListener('click', async () => {
         const name = document.getElementById('add-name').value.trim();
         const phone = document.getElementById('add-phone').value.trim();
         const password = document.getElementById('add-password').value.trim();
@@ -147,7 +147,7 @@
         const city = document.getElementById('add-city').value.trim();
         const joinDate = document.getElementById('add-join').value || new Date().toISOString().split('T')[0];
         if (!name || !phone || !password || !address) { alert('Please fill required fields'); return; }
-        addCustomer({ name, phone, password, address, city, email, joinDate });
+        await addCustomer({ name, phone, password, address, city, email, joinDate });
         addModal.classList.add('hidden');
         renderCustomers();
         alert('Customer added successfully');

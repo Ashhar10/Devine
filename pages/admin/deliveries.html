@@ -60,11 +60,11 @@
       }
       renderDeliveries();
 
-      document.getElementById('btn-add-delivery').addEventListener('click', () => {
+      document.getElementById('btn-add-delivery').addEventListener('click', async () => {
         const customerId = prompt('Enter Customer ID');
         const qty = prompt('Enter bottles quantity');
         if (!customerId || !qty || Number(qty) <= 0) { alert('Please enter valid values'); return; }
-        addDelivery(Number(customerId), Number(qty));
+        await addDelivery(Number(customerId), Number(qty));
         renderDeliveries();
         alert('Delivery added successfully');
       });
