@@ -53,8 +53,7 @@ export function logout() {
   state.userType = null;
   state.currentUser = null;
   saveState();
-  // Use an absolute path so logout works from any nested page
-  window.location.href = '/pages/login.html';
+  window.location.href = '../login.html';
 }
 
 // Customers
