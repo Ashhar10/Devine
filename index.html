@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Devine Water</title>
+    <meta http-equiv="refresh" content="0; url=/pages/login.html" />
+    <script>
+      // JS redirect as a fallback for servers that ignore meta refresh
+      (function(){
+        const target = '/pages/login.html';
+        if (location.pathname !== target) {
+          window.location.replace(target);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <p>This site requires JavaScript. Continue to <a href="/pages/login.html">Login</a>.</p>
+    </noscript>
+  </body>
+  </html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer Detail</title>
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+    <main class="min-h-screen bg-gray-50">
+      <div class="container py-8">
+        <button class="text-cyan-600 font-semibold mb-6" onclick="location.href='./customers.html'">← Back to Customers</button>
+
+        <div id="header" class="card p-8 mb-6"></div>
+
+        <div class="grid grid-3 mb-6">
+          <div class="card card-gradient-cyan p-8 center-card">
+            <div>
+              <p class="text-5xl font-bold" id="stat-total">0</p>
+              <p class="text-sm" style="opacity:.9">Total Bottles</p>
+            </div>
+          </div>
+          <div class="card card-gradient-yellow p-8 center-card">
+            <div>
+              <p class="text-5xl font-bold" id="stat-month">0</p>
+              <p class="text-sm" style="opacity:.9">This Month</p>
+            </div>
+          </div>
+          <div class="card card-gradient-green p-8 center-card">
+            <div>
+              <p class="text-5xl font-bold" id="stat-bill">Rs. 0</p>
+              <p class="text-sm" style="opacity:.9">Current Bill</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 mb-8">
+          <button id="btn-reminder" class="btn btn-secondary">Send Reminder</button>
+          <button id="btn-record-payment" class="btn btn-green">Record Payment</button>
+        </div>
+
+        <div class="card p-6 mb-6">
+          <h3 class="text-xl font-bold mb-4">Record Delivery</h3>
+          <div class="flex gap-4">
+            <input type="number" id="delivery-qty" min="1" value="1" class="border rounded-xl px-4 py-3" />
+            <button id="btn-add-delivery" class="btn btn-primary">Add</button>
+          </div>
+        </div>
+
+        <div class="card p-6 mb-6">
+          <h3 class="text-2xl font-bold mb-4">Delivery History</h3>
+          <div id="delivery-history" class="space-y-3"></div>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="text-2xl font-bold mb-4">Payment History</h3>
+          <div id="payment-history" class="space-y-3"></div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { renderNavbar } from '../../assets/js/ui.js';
+      import { state, updateCustomer, addDelivery, recordPayment } from '../../assets/js/state.js';
+      import { calculateMonthlyBill } from '../../assets/js/utils.js';
+      renderNavbar({ isAdmin: true });
+
+      const params = new URLSearchParams(location.search);
+      const id = Number(params.get('id'));
+      let customer = state.customers.find(c => c.id === id);
+      if (!customer) { alert('Customer not found'); location.href = './customers.html'; }
+
+      function renderHeader() {
+        const isPaid = customer.isPaid && !(new Date(customer.renewalDate) < new Date());
+        document.getElementById('header').innerHTML = `
+          <div class="flex justify-between mb-6">
+            <div>
+              <h2 class="text-4xl font-bold text-cyan-600">${customer.name}</h2>
+              <p class="text-gray-600">${customer.email || ''}</p>
+            </div>
+            <span class="badge ${isPaid ? 'badge-paid' : 'badge-unpaid'}">${isPaid ? 'Paid' : 'Unpaid'}</span>
+          </div>
+          <div class="grid grid-3 gap-6">
+            <div class="bg-cyan-50 p-6 rounded-xl">
+              <p class="text-sm text-gray-600">Phone</p>
+              <p class="font-semibold">${customer.phone}</p>
+            </div>
+            <div class="bg-cyan-50 p-6 rounded-xl">
+              <p class="text-sm text-gray-600">Join Date</p>
+              <p class="font-semibold">${customer.joinDate ? new Date(customer.joinDate).toLocaleDateString() : '—'}</p>
+            </div>
+            <div class="bg-cyan-50 p-6 rounded-xl">
+              <p class="text-sm text-gray-600">Renewal</p>
+              <p class="font-semibold">${customer.renewalDate ? new Date(customer.renewalDate).toLocaleDateString() : '—'}</p>
+            </div>
+          </div>
+        `;
+        document.getElementById('stat-total').textContent = String(customer.totalBottles || 0);
+        document.getElementById('stat-month').textContent = String(customer.monthlyConsumption || 0);
+        document.getElementById('stat-bill').textContent = `Rs. ${calculateMonthlyBill(customer)}`;
+      }
+
+      function renderHistory() {
+        const dRoot = document.getElementById('delivery-history');
+        const pRoot = document.getElementById('payment-history');
+        const deliveries = customer.deliveries || [];
+        const payments = customer.payments || [];
+        dRoot.innerHTML = deliveries.length === 0 ? '<p class="text-gray-500">No deliveries yet</p>' : deliveries.map(del => `
+          <div class="flex justify-between border-b pb-3">
+            <div>
+              <p class="font-semibold">${del.quantity} bottles (${del.liters}L)</p>
+              <p class="text-sm text-gray-600">${del.date}</p>
+            </div>
+            <span class="text-green-600 font-bold">Rs. ${del.quantity * 45}</span>
+          </div>
+        `).join('');
+        pRoot.innerHTML = payments.length === 0 ? '<p class="text-gray-500">No payments</p>' : payments.map(p => `
+          <div class="flex justify-between border-b pb-3">
+            <div>
+              <p class="font-semibold">Rs. ${p.amount}</p>
+              <p class="text-sm text-gray-600">${p.date}</p>
+            </div>
+            <span>✅</span>
+          </div>
+        `).join('');
+      }
+
+      renderHeader();
+      renderHistory();
+
+      document.getElementById('btn-reminder').addEventListener('click', () => {
+        const msg = `Dear ${customer.name}, your payment of Rs. ${calculateMonthlyBill(customer)} is due. Renewal: ${customer.renewalDate}. Thank you! - Devine Water`;
+        const url = `https://wa.me/${customer.phone.replace(/[-\s]/g,'')}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      });
+
+      document.getElementById('btn-record-payment').addEventListener('click', () => {
+        recordPayment(customer.id, calculateMonthlyBill(customer), 'Cash');
+        customer = state.customers.find(c => c.id === id);
+        alert('Payment recorded');
+        renderHeader();
+        renderHistory();
+      });
+
+      document.getElementById('btn-add-delivery').addEventListener('click', () => {
+        const qty = Number(document.getElementById('delivery-qty').value || 1);
+        if (qty < 1) { alert('Please enter a valid quantity'); return; }
+        addDelivery(customer.id, qty);
+        customer = state.customers.find(c => c.id === id);
+        alert('Delivery recorded');
+        renderHeader();
+        renderHistory();
+      });
+    </script>
+  </body>
+</html>

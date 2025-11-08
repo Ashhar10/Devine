@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Payments</title>
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+    <main class="min-h-screen bg-gray-50">
+      <div class="container py-8">
+        <div class="flex justify-between items-center mb-6">
+          <button class="text-cyan-600 font-semibold" onclick="location.href='./dashboard.html'">← Back to Dashboard</button>
+          <button id="btn-add-payment" class="btn btn-green">➕ Add Payment</button>
+        </div>
+
+        <h2 class="text-4xl font-bold text-cyan-600 mb-6">Payment Management</h2>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-body">
+              <h3 class="text-2xl font-bold mb-4" style="color:#b91c1c">Unpaid Customers</h3>
+              <div id="unpaid-list" class="space-y-4"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <h3 class="text-2xl font-bold mb-4" style="color:#14532d">Recent Payments</h3>
+              <div id="payments-list" class="space-y-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { renderNavbar } from '../../assets/js/ui.js';
+      import { state, recordPayment } from '../../assets/js/state.js';
+      import { calculateMonthlyBill, checkRenewalStatus } from '../../assets/js/utils.js';
+      renderNavbar({ isAdmin: true });
+
+      const unpaidCustomers = state.customers.filter(c => !c.isPaid || checkRenewalStatus(c));
+      const unpaidList = document.getElementById('unpaid-list');
+      const paymentsList = document.getElementById('payments-list');
+
+      function renderUnpaid() {
+        if (unpaidCustomers.length === 0) { unpaidList.innerHTML = '<p class="text-gray-500">All paid!</p>'; return; }
+        unpaidList.innerHTML = unpaidCustomers.map(customer => `
+          <div class="bg-red-50 p-5 rounded-xl border">
+            <div class="flex justify-between mb-3">
+              <div>
+                <p class="font-bold text-xl">${customer.name}</p>
+                <p class="text-sm text-gray-600">${customer.phone}</p>
+              </div>
+              <p class="text-3xl font-bold text-red-600">Rs. ${calculateMonthlyBill(customer)}</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary" data-wa="${customer.id}">Send Reminder</button>
+              <button class="btn btn-green" data-paid="${customer.id}">Mark Paid</button>
+            </div>
+          </div>
+        `).join('');
+        Array.from(document.querySelectorAll('[data-wa]')).forEach(b => {
+          b.addEventListener('click', () => {
+            const id = Number(b.getAttribute('data-wa'));
+            const c = state.customers.find(x => x.id === id);
+            const msg = `Dear ${c.name}, your payment of Rs. ${calculateMonthlyBill(c)} is due. Renewal: ${c.renewalDate}. Thank you! - Devine Water`;
+            const url = `https://wa.me/${c.phone.replace(/[-\s]/g,'')}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+          });
+        });
+        Array.from(document.querySelectorAll('[data-paid]')).forEach(b => {
+          b.addEventListener('click', () => {
+            const id = Number(b.getAttribute('data-paid'));
+            const c = state.customers.find(x => x.id === id);
+            if (confirm(`Confirm payment Rs. ${calculateMonthlyBill(c)} for ${c.name}?`)) {
+              recordPayment(id, calculateMonthlyBill(c), 'Cash');
+              alert('Payment recorded');
+              renderPayments();
+            }
+          });
+        });
+      }
+
+      function renderPayments() {
+        if (state.payments.length === 0) { paymentsList.innerHTML = '<p class="text-gray-500">No payments yet</p>'; return; }
+        paymentsList.innerHTML = state.payments.slice(0, 10).map(p => `
+          <div class="bg-cyan-50 p-5 rounded-xl border">
+            <div class="flex justify-between">
+              <div>
+                <p class="font-bold">${p.customer_name}</p>
+                <p class="text-sm text-gray-600">${p.date}</p>
+              </div>
+              <p class="text-2xl font-bold text-green-600">Rs. ${p.amount}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      renderUnpaid();
+      renderPayments();
+
+      document.getElementById('btn-add-payment').addEventListener('click', () => {
+        const cid = prompt('Customer ID');
+        const amount = prompt('Amount (Rs)');
+        const method = prompt('Method (Cash/Online/Bank Transfer)', 'Cash');
+        if (!cid || !amount) { alert('Please fill all fields'); return; }
+        recordPayment(Number(cid), Number(amount), method || 'Cash');
+        renderPayments();
+        alert('Payment added');
+      });
+    </script>
+  </body>
+</html>

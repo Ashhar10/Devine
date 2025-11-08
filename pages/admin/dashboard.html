@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+    <main class="min-h-screen bg-gray-50">
+      <div class="container py-8">
+        <h1 class="text-4xl font-bold text-cyan-600 mb-8">Admin Dashboard</h1>
+
+        <div class="grid grid-4 mb-8">
+          <div class="card card-gradient-cyan p-6">
+            <p class="text-sm" style="opacity:.9">Total Customers</p>
+            <p id="stat-total-customers" class="text-4xl font-bold">0</p>
+          </div>
+          <div class="card card-gradient-red p-6">
+            <p class="text-sm" style="opacity:.9">Unpaid</p>
+            <p id="stat-unpaid" class="text-4xl font-bold">0</p>
+          </div>
+          <div class="card card-gradient-yellow p-6">
+            <p class="text-sm" style="opacity:.9">Pending Orders</p>
+            <p id="stat-pending-orders" class="text-4xl font-bold">0</p>
+          </div>
+          <div class="card card-gradient-green p-6">
+            <p class="text-sm" style="opacity:.9">Deliveries</p>
+            <p id="stat-deliveries" class="text-4xl font-bold">0</p>
+          </div>
+        </div>
+
+        <div class="card mb-6">
+          <div class="card-body flex gap-4 flex-wrap">
+            <button class="btn btn-primary" onclick="location.href='./customers.html'">Customers</button>
+            <button class="btn btn-secondary" onclick="location.href='./orders.html'">Orders</button>
+            <button class="btn btn-secondary" onclick="location.href='./deliveries.html'">Deliveries</button>
+            <button class="btn btn-secondary" onclick="location.href='./payments.html'">Payments</button>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-body">
+              <h3 class="text-xl font-bold mb-4">Unpaid Customers</h3>
+              <div id="list-unpaid" class="space-y-3"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <h3 class="text-xl font-bold mb-4">Recent Orders</h3>
+              <div id="list-orders" class="space-y-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { renderNavbar } from '../../assets/js/ui.js';
+      import { state } from '../../assets/js/state.js';
+      import { checkRenewalStatus } from '../../assets/js/utils.js';
+      renderNavbar({ isAdmin: true });
+
+      const elTotalCustomers = document.getElementById('stat-total-customers');
+      const elUnpaid = document.getElementById('stat-unpaid');
+      const elPendingOrders = document.getElementById('stat-pending-orders');
+      const elDeliveries = document.getElementById('stat-deliveries');
+
+      const unpaidList = state.customers.filter(c => !c.isPaid || checkRenewalStatus(c));
+      const pendingOrders = state.orders.filter(o => o.status === 'pending');
+
+      elTotalCustomers.textContent = String(state.customers.length);
+      elUnpaid.textContent = String(unpaidList.length);
+      elPendingOrders.textContent = String(pendingOrders.length);
+      elDeliveries.textContent = String(state.deliveries.length);
+
+      const listUnpaid = document.getElementById('list-unpaid');
+      if (unpaidList.length === 0) {
+        listUnpaid.innerHTML = '<p class="text-gray-500">All paid!</p>';
+      } else {
+        listUnpaid.innerHTML = unpaidList.slice(0, 5).map(c => `
+          <div class="bg-red-50 border-l-4 p-4 rounded-lg">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-semibold">${c.name}</p>
+                <p class="text-sm text-red-600">${c.city || 'Unknown City'}</p>
+              </div>
+              <button class="btn btn-danger" onclick="location.href='./customer-detail.html?id=${c.id}'">View</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const listOrders = document.getElementById('list-orders');
+      if (pendingOrders.length === 0) {
+        listOrders.innerHTML = '<p class="text-gray-500">No pending orders</p>';
+      } else {
+        listOrders.innerHTML = pendingOrders.slice(0, 5).map(o => `
+          <div class="bg-yellow-50 border-l-4 p-4 rounded-lg">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-semibold">${o.customerName || 'Customer'}</p>
+                <p class="text-sm">${o.quantity} bottles — ${o.status}</p>
+              </div>
+              <span class="text-yellow-600 font-bold">Pending</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Deliveries</title>
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+    <main class="min-h-screen bg-gray-50">
+      <div class="container py-8">
+        <div class="flex justify-between items-center mb-6">
+          <button class="text-cyan-600 font-semibold" onclick="location.href='./dashboard.html'">← Back to Dashboard</button>
+          <button id="btn-add-delivery" class="btn btn-primary">➕ Add Delivery</button>
+        </div>
+
+        <h2 class="text-4xl font-bold text-cyan-600 mb-6">All Deliveries</h2>
+
+        <div class="card">
+          <div class="card-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Bottles</th>
+                  <th>Liters</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody id="deliveries-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { renderNavbar } from '../../assets/js/ui.js';
+      import { state, addDelivery, getCustomerName } from '../../assets/js/state.js';
+      import { PRICE_PER_BOTTLE } from '../../assets/js/utils.js';
+      renderNavbar({ isAdmin: true });
+
+      const tbody = document.getElementById('deliveries-tbody');
+      function renderDeliveries() {
+        if (state.deliveries.length === 0) {
+          tbody.innerHTML = `<tr><td colspan='5' class='text-center text-gray-500 py-8'>No deliveries found.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = state.deliveries.map((d, idx) => `
+          <tr class='${idx % 2 === 0 ? 'row-alt' : ''}'>
+            <td>${d.date ? new Date(d.date).toLocaleDateString() : '-'}</td>
+            <td class='font-semibold'>${getCustomerName(d.customerId)}</td>
+            <td>${d.quantity}</td>
+            <td>${d.liters ? `${d.liters} L` : '-'}</td>
+            <td class='text-green-600 font-bold'>Rs. ${d.quantity * PRICE_PER_BOTTLE}</td>
+          </tr>
+        `).join('');
+      }
+      renderDeliveries();
+
+      document.getElementById('btn-add-delivery').addEventListener('click', () => {
+        const customerId = prompt('Enter Customer ID');
+        const qty = prompt('Enter bottles quantity');
+        if (!customerId || !qty || Number(qty) <= 0) { alert('Please enter valid values'); return; }
+        addDelivery(Number(customerId), Number(qty));
+        renderDeliveries();
+        alert('Delivery added successfully');
+      });
+    </script>
+  </body>
+</html>

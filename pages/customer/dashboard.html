@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+    <link rel="stylesheet" href="../../assets/css/customer.css" />
+  </head>
+  <body>
+    <div id="navbar"></div>
+    <main class="min-h-screen bg-gray-50 customer-dashboard-container">
+      <div class="container py-8">
+        <div class="card card-gradient-cyan p-10 mb-8">
+          <h2 id="welcome" class="text-4xl font-bold mb-2"></h2>
+          <p id="addr" class="text-xl"></p>
+        </div>
+
+        <div class="grid grid-3 gap-6 mb-8">
+          <div class="card card-gradient-cyan p-8 dashboard-card">
+            <p class="text-sm" style="opacity:.9">Total Bottles</p>
+            <p id="stat-total" class="text-5xl font-bold">0</p>
+          </div>
+          <div class="card card-gradient-yellow p-8 dashboard-card">
+            <p class="text-sm" style="opacity:.9">This Month</p>
+            <p id="stat-month" class="text-5xl font-bold">0</p>
+          </div>
+          <div class="card card-gradient-green p-8 dashboard-card">
+            <p class="text-sm" style="opacity:.9">Current Bill</p>
+            <p id="stat-bill" class="text-5xl font-bold">Rs. 0</p>
+          </div>
+        </div>
+
+        <div id="payment-due" class="card p-6 mb-8" style="display:none;background:#ef4444;color:#fff;"><div class="flex justify-between items-center"><div><p class="text-2xl font-bold">Payment Due!</p><p class="text-lg" id="due-text"></p></div><button id="view-bill" class="btn" style="background:#fff;color:#dc2626;">View Bill</button></div></div>
+
+        <div class="grid grid-3 gap-6 mb-8">
+          <button id="btn-order" class="btn btn-primary p-10 dashboard-card">Place Order</button>
+          <button id="btn-contact" class="btn btn-green p-10 dashboard-card">Contact Us</button>
+          <button id="btn-profile" class="btn btn-secondary p-10 dashboard-card">Edit Profile</button>
+        </div>
+
+        <div class="card p-6 mb-6">
+          <h3 class="text-2xl font-bold mb-4">My Orders</h3>
+          <div id="orders" class="space-y-3 custom-scrollbar scroll"></div>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="text-2xl font-bold mb-4">Delivery History</h3>
+          <div id="deliveries" class="space-y-3 custom-scrollbar scroll"></div>
+        </div>
+      </div>
+
+      <!-- Order Popup -->
+      <div id="order-overlay" class="overlay hidden">
+        <div class="bg-white rounded-2xl p-8 order-popup">
+          <div class="flex justify-between mb-6">
+            <h2 class="text-3xl font-bold text-cyan-600">Place Order</h2>
+            <button id="order-close">✕</button>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-semibold mb-2">Number of Bottles</label>
+            <input type="number" id="order-qty" min="1" value="1" class="border rounded-xl px-4 py-4 text-xl" />
+          </div>
+          <div class="bg-cyan-50 p-6 rounded-xl mb-6">
+            <div class="flex justify-between">
+              <span class="font-bold text-lg">Total:</span>
+              <span id="order-total" class="text-3xl font-bold text-cyan-600">Rs. 0</span>
+            </div>
+          </div>
+          <button id="order-confirm" class="w-full btn btn-primary text-lg">Confirm Order</button>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { renderNavbar } from '../../assets/js/ui.js';
+      import { state, placeOrder } from '../../assets/js/state.js';
+      import { calculateMonthlyBill, checkRenewalStatus, PRICE_PER_BOTTLE } from '../../assets/js/utils.js';
+      renderNavbar({ isAdmin: false });
+
+      if (!state.currentUser) { alert('User not found. Please login again.'); location.href = '../login.html'; }
+      const user = state.currentUser;
+      document.getElementById('welcome').textContent = `Welcome, ${user.name}!`;
+      document.getElementById('addr').textContent = user.address || '';
+      document.getElementById('stat-total').textContent = String(user.totalBottles || 0);
+      document.getElementById('stat-month').textContent = String(user.monthlyConsumption || 0);
+      document.getElementById('stat-bill').textContent = `Rs. ${calculateMonthlyBill(user)}`;
+
+      const due = (!user.isPaid || checkRenewalStatus(user));
+      if (due) {
+        const dueText = `Rs. ${calculateMonthlyBill(user)} - Due: ${user.renewalDate}`;
+        document.getElementById('due-text').textContent = dueText;
+        document.getElementById('payment-due').style.display = 'block';
+        document.getElementById('view-bill').addEventListener('click', () => {
+          const message = `Amount: Rs. ${calculateMonthlyBill(user)}\nRenewal Date: ${user.renewalDate}`;
+          alert(message);
+          const msg = `Hello Devine Water! I need assistance. Customer: ${user.name}`;
+          window.open(`https://wa.me/923010209897?text=${encodeURIComponent(msg)}`, '_blank');
+        });
+      }
+
+      // Actions
+      document.getElementById('btn-order').addEventListener('click', () => { document.getElementById('order-overlay').classList.remove('hidden'); updateTotal(); });
+      document.getElementById('btn-contact').addEventListener('click', () => {
+        const msg = `Hello Devine Water! I need assistance. Customer: ${user.name}`;
+        window.open(`https://wa.me/923010209897?text=${encodeURIComponent(msg)}`, '_blank');
+      });
+      document.getElementById('btn-profile').addEventListener('click', () => { location.href = './profile.html'; });
+      document.getElementById('order-close').addEventListener('click', () => { document.getElementById('order-overlay').classList.add('hidden'); });
+      document.getElementById('order-qty').addEventListener('input', updateTotal);
+      function updateTotal() { const qty = Number(document.getElementById('order-qty').value || 1); document.getElementById('order-total').textContent = `Rs. ${qty * PRICE_PER_BOTTLE}`; }
+      document.getElementById('order-confirm').addEventListener('click', () => {
+        const qty = Number(document.getElementById('order-qty').value || 1);
+        if (qty < 1) { alert('Please enter a valid quantity'); return; }
+        placeOrder(user.id, qty);
+        document.getElementById('order-overlay').classList.add('hidden');
+        alert('Order placed successfully');
+        renderOrders();
+      });
+
+      function renderOrders() {
+        const ordersRoot = document.getElementById('orders');
+        const userOrders = state.orders.filter(o => o.customerId === user.id);
+        ordersRoot.innerHTML = userOrders.length === 0 ? '<p class="text-gray-500 text-center py-4">No orders yet</p>' : userOrders.map(order => `
+          <div class="p-5 rounded-xl border-l-4 ${order.status === 'pending' ? 'bg-yellow-50' : 'bg-cyan-50'} list-item">
+            <div class="flex justify-between">
+              <div>
+                <p class="font-semibold">${order.quantity} bottles</p>
+                <p class="text-sm text-gray-600">${order.date}</p>
+              </div>
+              <span class="badge ${order.status === 'pending' ? 'badge-pending' : 'badge-delivered'}">${order.status.toUpperCase()}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+      function renderDeliveries() {
+        const delRoot = document.getElementById('deliveries');
+        const deliveries = (user.deliveries || []);
+        delRoot.innerHTML = deliveries.length === 0 ? '<p class="text-gray-500 text-center py-4">No deliveries yet</p>' : deliveries.map(delivery => `
+          <div class="flex justify-between border-b pb-3 list-item">
+            <div>
+              <p class="font-semibold">${delivery.quantity} bottles (${delivery.liters}L)</p>
+              <p class="text-sm text-gray-600">${delivery.date}</p>
+            </div>
+            <span class="text-green-600 font-bold">Rs. ${delivery.quantity * PRICE_PER_BOTTLE}</span>
+          </div>
+        `).join('');
+      }
+
+      renderOrders();
+      renderDeliveries();
+    </script>
+  </body>
+</html>
