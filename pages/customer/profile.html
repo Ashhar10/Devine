@@ -50,7 +50,7 @@
 
     <script type="module">
       import { state, setCurrentUser, updateCustomer } from '../../assets/js/state.js';
-      if (!state.currentUser) { alert('User not found. Please login again.'); location.href = '../login.html'; }
+      if (!state.currentUser) { alert('User not found. Please login again.'); location.href = new URL('../login.html', window.location.href).href; }
       const user = state.currentUser;
       const fName = document.getElementById('f-name');
       const fEmail = document.getElementById('f-email');
@@ -70,14 +70,14 @@
       }
       hydrate();
 
-      btnBack.addEventListener('click', () => { location.href = './dashboard.html'; });
+      btnBack.addEventListener('click', () => { location.href = new URL('./dashboard.html', window.location.href).href; });
       btnSave.addEventListener('click', () => {
         if (!fName.value.trim() || !fAddress.value.trim() || !fCity.value.trim()) { alert('Please fill in all required fields.'); return; }
         const updated = { ...user, name: fName.value.trim(), email: fEmail.value.trim(), address: fAddress.value.trim(), city: fCity.value.trim(), currentLocation: fLocation.value.trim() };
         setCurrentUser(updated);
         updateCustomer(updated);
         alert('Profile updated successfully');
-        location.href = './dashboard.html';
+        location.href = new URL('./dashboard.html', window.location.href).href;
       });
       btnLocation.addEventListener('click', () => {
         if (!navigator.geolocation) { alert('Geolocation not supported'); return; }

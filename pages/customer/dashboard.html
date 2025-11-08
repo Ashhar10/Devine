@@ -78,7 +78,7 @@
       import { calculateMonthlyBill, checkRenewalStatus, PRICE_PER_BOTTLE } from '../../assets/js/utils.js';
       renderNavbar({ isAdmin: false });
 
-      if (!state.currentUser) { alert('User not found. Please login again.'); location.href = '../login.html'; }
+      if (!state.currentUser) { alert('User not found. Please login again.'); location.href = new URL('../login.html', window.location.href).href; }
       const user = state.currentUser;
       document.getElementById('welcome').textContent = `Welcome, ${user.name}!`;
       document.getElementById('addr').textContent = user.address || '';
@@ -105,7 +105,7 @@
         const msg = `Hello Devine Water! I need assistance. Customer: ${user.name}`;
         window.open(`https://wa.me/923010209897?text=${encodeURIComponent(msg)}`, '_blank');
       });
-      document.getElementById('btn-profile').addEventListener('click', () => { location.href = './profile.html'; });
+      document.getElementById('btn-profile').addEventListener('click', () => { location.href = new URL('./profile.html', window.location.href).href; });
       document.getElementById('order-close').addEventListener('click', () => { document.getElementById('order-overlay').classList.add('hidden'); });
       document.getElementById('order-qty').addEventListener('input', updateTotal);
       function updateTotal() { const qty = Number(document.getElementById('order-qty').value || 1); document.getElementById('order-total').textContent = `Rs. ${qty * PRICE_PER_BOTTLE}`; }

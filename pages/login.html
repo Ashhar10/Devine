@@ -122,14 +122,14 @@
         if (loginType === 'admin') {
           if (u === state.adminCredentials.username && p === state.adminCredentials.password) {
             setUserType('admin');
-            window.location.href = './admin/dashboard.html';
+            window.location.href = new URL('./admin/dashboard.html', window.location.href).href;
           } else { setError('Invalid admin credentials!'); }
         } else {
           const customer = state.customers.find(c => c.phone === u && c.password === p);
           if (customer) {
             setCurrentUser(customer);
             setUserType('customer');
-            window.location.href = './customer/dashboard.html';
+            window.location.href = new URL('./customer/dashboard.html', window.location.href).href;
           } else { setError('Invalid customer credentials!'); }
         }
       });

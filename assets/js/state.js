@@ -53,7 +53,8 @@ export function logout() {
   state.userType = null;
   state.currentUser = null;
   saveState();
-  window.location.href = '../login.html';
+  // Robust relative navigation that works from any nested page
+  window.location.href = new URL('../login.html', window.location.href).href;
 }
 
 // Customers

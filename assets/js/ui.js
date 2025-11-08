@@ -20,8 +20,9 @@ export function renderNavbar({ isAdmin = false }) {
 
   document.getElementById('logoutBtn')?.addEventListener('click', logout);
   document.getElementById('brandLink')?.addEventListener('click', () => {
-    window.location.href = isAdmin ? './dashboard.html' : '../customer/dashboard.html';
+    const target = isAdmin ? './dashboard.html' : '../customer/dashboard.html';
+    window.location.href = new URL(target, window.location.href).href;
   });
 }
 
-export function linkTo(path) { window.location.href = path; }
+export function linkTo(path) { window.location.href = new URL(path, window.location.href).href; }

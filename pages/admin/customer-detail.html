@@ -69,7 +69,7 @@
       const params = new URLSearchParams(location.search);
       const id = Number(params.get('id'));
       let customer = state.customers.find(c => c.id === id);
-      if (!customer) { alert('Customer not found'); location.href = './customers.html'; }
+      if (!customer) { alert('Customer not found'); location.href = new URL('./customers.html', window.location.href).href; }
 
       function renderHeader() {
         const isPaid = customer.isPaid && !(new Date(customer.renewalDate) < new Date());
