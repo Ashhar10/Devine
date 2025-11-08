@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: devine-backend
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node src/server.js
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      # Set the following in Render dashboard (do NOT commit secrets):
+      # DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, JWT_SECRET, ALLOW_ORIGIN
