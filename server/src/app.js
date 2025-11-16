@@ -21,6 +21,8 @@ app.use(cors({ origin: config.allowOrigin, credentials: true }));
 app.use(rateLimit({ windowMs: 60 * 1000, max: 200 }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true, env: config.env }));
+// Render default health check path support
+app.get('/healthz', (req, res) => res.json({ ok: true, env: config.env }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
