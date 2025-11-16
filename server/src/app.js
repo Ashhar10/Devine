@@ -22,16 +22,29 @@ app.use(morgan('dev'));
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow requests from any origin (reflect the request origin)
-      // This avoids mismatches when hosting frontend on GitHub Pages.
-      cb(null, true);
+      if (!origin) return cb(null, true); // non-browser or same-origin
+      const allowed = config.corsAllowedOrigins;
+      if (allowed.includes('*') || allowed.includes(origin)) return cb(null, true);
+      return cb(null, false);
     },
-    credentials: true,
+    credentials: false,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 204,
   })
 );
+// Defensive: ensure CORS header is present even on unexpected errors
+app.use((req, res, next) => {
+  // Attach CORS headers defensively; reflect origin if allowed, otherwise omit
+  const origin = req.headers.origin;
+  const allowed = config.corsAllowedOrigins;
+  if (!origin || allowed.includes('*') || allowed.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+  }
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 // Ensure preflight requests succeed globally
 app.options('*', cors());
 

@@ -32,3 +32,15 @@ Authentication: JWT Bearer token in `Authorization` header.
 - `GET /stats` → `{ customers, unpaid, pendingOrders, deliveries }`
 
 All write operations use prepared statements; transactions are used where required.
+## CORS and Frontend Origins
+- The backend enables CORS for the following origins by default:
+  - `https://ashhar10.github.io`
+  - `http://localhost:8000`
+- You can customize allowed origins via environment variables:
+  - `ALLOW_ORIGINS` — comma separated list (e.g. `https://your.pages.site,https://your.app`)
+  - `ALLOW_ORIGIN` — single origin; used if `ALLOW_ORIGINS` is not set
+- Set `ALLOW_ORIGINS=*` to allow all origins (not recommended for production).
+
+## Database SSL
+- If your MySQL provider requires TLS, set `DB_SSL=true` and the pool will enable SSL with `rejectUnauthorized=false`.
+- Railway typically works without SSL; PlanetScale requires it.

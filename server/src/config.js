@@ -13,7 +13,12 @@ export const config = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
   },
   jwtSecret: process.env.JWT_SECRET || 'devine_secret',
-  allowOrigin: process.env.ALLOW_ORIGIN || '*',
+  // Comma-separated list of allowed origins, default to GitHub Pages and localhost. Use '*' for wildcard.
+  corsAllowedOrigins:
+    (process.env.ALLOW_ORIGINS || process.env.ALLOW_ORIGIN || 'https://ashhar10.github.io,http://localhost:8000')
+      .split(',')
+      .map((s) => s.trim()),
 };
