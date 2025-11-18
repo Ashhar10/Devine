@@ -1,7 +1,7 @@
 // API-backed global state and operations
 import { PRICE_PER_BOTTLE, LITERS_PER_BOTTLE } from './utils.js';
 
-const API_BASE = (window.__CONFIG__ && window.__CONFIG__.API_BASE) || 'http://localhost:3001/api';
+const API_BASE = (window.__CONFIG__ && window.__CONFIG__.API_BASE) || 'https://devine-backend.onrender.com';
 const TOKEN_KEY = 'devine_token_v1';
 
 export const state = {
