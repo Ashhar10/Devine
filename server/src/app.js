@@ -13,6 +13,15 @@ import statsRoutes from './routes/stats.js';
 import { errorHandler } from './middleware/error.js';
 
 const app = express();
+const express = require("express");
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://ashhar10.github.io",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
+
 
 app.use(helmet());
 app.use(express.json());
