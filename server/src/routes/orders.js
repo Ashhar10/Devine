@@ -17,9 +17,20 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
-const createSchema = z.object({ body: z.object({ customerId: z.number().int().positive(), quantity: z.number().int().positive() }) });
+const createSchema = z.object({
+  body: z.object({
+    customerId: z.number().int().positive(),
+    quantity: z.number().int().positive().max(100), // Max 100 bottles per order
+  }),
+});
 router.post('/', requireAuth, validate(createSchema), async (req, res) => {
   const { customerId, quantity } = req.validated.body;
+
+  // Authorization: customers can only create orders for themselves
+  if (req.user.role === 'customer' && req.user.id !== customerId) {
+    return res.status(403).json({ error: 'You can only create orders for yourself' });
+  }
+
   const [result] = await pool.execute(
     'INSERT INTO orders (customerId, quantity, status, date, time) VALUES (?, ?, ?, CURDATE(), DATE_FORMAT(NOW(), "%h:%i %p"))',
     [customerId, quantity, 'pending']

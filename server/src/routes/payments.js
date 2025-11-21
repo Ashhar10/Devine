@@ -1,6 +1,6 @@
 import express from 'express';
 import { pool, withTransaction } from '../db.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { z } from 'zod';
 import { validate } from '../middleware/validate.js';
 import { addMonth } from '../utils/date.js';
@@ -18,8 +18,14 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
-const createSchema = z.object({ body: z.object({ customerId: z.number().int().positive(), amount: z.number().positive(), method: z.string().default('Cash') }) });
-router.post('/', requireAuth, validate(createSchema), async (req, res) => {
+const createSchema = z.object({
+  body: z.object({
+    customerId: z.number().int().positive(),
+    amount: z.number().positive().max(1000000), // Max 1 million per payment
+    method: z.enum(['Cash', 'Card', 'Bank Transfer', 'Online']).default('Cash'),
+  }),
+});
+router.post('/', requireAuth, requireAdmin, validate(createSchema), async (req, res) => {
   const { customerId, amount, method } = req.validated.body;
   await withTransaction(async (conn) => {
     await conn.execute('INSERT INTO payments (customerId, amount, method, date) VALUES (?, ?, ?, CURDATE())', [customerId, amount, method]);

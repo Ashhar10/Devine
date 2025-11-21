@@ -120,16 +120,34 @@
         const p = passwordInput.value.trim();
         if (!u || !p) { setError('Please enter all credentials'); return; }
 
+        // Client-side password validation (matches backend)
+        if (p.length < 8) {
+          setError('Password must be at least 8 characters long');
+          return;
+        }
+        if (!/[a-zA-Z]/.test(p)) {
+          setError('Password must contain at least one letter');
+          return;
+        }
+        if (!/[0-9]/.test(p)) {
+          setError('Password must contain at least one number');
+          return;
+        }
+
         if (loginType === 'admin') {
           try {
             await loginAdmin(u, p);
             window.location.href = new URL('./admin/dashboard.html', window.location.href).href;
-          } catch (e) { setError('Invalid admin credentials!'); }
+          } catch (e) { 
+            setError(e.message || 'Invalid username or password');
+          }
         } else {
           try {
             await loginCustomer(u, p);
             window.location.href = new URL('./customer/dashboard.html', window.location.href).href;
-          } catch (e) { setError('Invalid customer credentials!'); }
+          } catch (e) { 
+            setError(e.message || 'Invalid phone or password');
+          }
         }
       });
 
@@ -141,10 +159,24 @@
       closeAdminModal.addEventListener('click', () => { adminModal.style.display = 'none'; });
       saveAdminPassword.addEventListener('click', () => {
         const newPass = adminNewPassword.value.trim();
-        if (newPass.length < 4) { setError('Password must be at least 4 characters long'); return; }
+        
+        // Enhanced password validation
+        if (newPass.length < 8) {
+          setError('Password must be at least 8 characters long');
+          return;
+        }
+        if (!/[a-zA-Z]/.test(newPass)) {
+          setError('Password must contain at least one letter');
+          return;
+        }
+        if (!/[0-9]/.test(newPass)) {
+          setError('Password must contain at least one number');
+          return;
+        }
+        
         setError('');
         adminModal.style.display = 'none';
-        alert('Please update admin password via the backend admin tools.');
+        alert('Please update admin password via the backend admin tools or database.');
       });
 
       // Enter to submit

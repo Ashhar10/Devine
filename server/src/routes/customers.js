@@ -24,14 +24,21 @@ router.get('/:id', requireAuth, async (req, res) => {
   res.json(customer);
 });
 
+// Password validation: min 8 chars, must contain letter and number (same as auth.js)
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters long')
+  .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
+  .regex(/[0-9]/, 'Password must contain at least one number');
+
 const upsertSchema = z.object({
   body: z.object({
-    name: z.string().min(1),
-    phone: z.string().min(5),
-    password: z.string().optional(),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    email: z.string().email().optional(),
+    name: z.string().min(1).max(128),
+    phone: z.string().min(5).max(32),
+    password: passwordSchema.optional(),
+    address: z.string().max(255).optional(),
+    city: z.string().max(64).optional(),
+    email: z.string().email().max(128).optional().or(z.literal('')),
     joinDate: z.string().optional(),
     renewalDate: z.string().optional(),
   }),
@@ -49,6 +56,12 @@ router.post('/', requireAuth, requireAdmin, validate(upsertSchema), async (req, 
 
 router.put('/:id', requireAuth, validate(upsertSchema), async (req, res) => {
   const id = Number(req.params.id);
+
+  // Authorization: customers can only update their own data, admins can update any
+  if (req.user.role === 'customer' && req.user.id !== id) {
+    return res.status(403).json({ error: 'You can only update your own profile' });
+  }
+
   const { name, phone, address, city, email } = req.validated.body;
   const [result] = await pool.execute(
     'UPDATE customers SET name=?, phone=?, address=?, city=?, email=? WHERE id=?',

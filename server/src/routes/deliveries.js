@@ -1,6 +1,6 @@
 import express from 'express';
 import { pool } from '../db.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { z } from 'zod';
 import { validate } from '../middleware/validate.js';
 
@@ -17,8 +17,14 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
-const createSchema = z.object({ body: z.object({ customerId: z.number().int().positive(), quantity: z.number().int().positive(), liters: z.number().positive().optional() }) });
-router.post('/', requireAuth, validate(createSchema), async (req, res) => {
+const createSchema = z.object({
+  body: z.object({
+    customerId: z.number().int().positive(),
+    quantity: z.number().int().positive().max(100), // Max 100 bottles per delivery
+    liters: z.number().positive().max(2000).optional(), // Max 2000 liters
+  }),
+});
+router.post('/', requireAuth, requireAdmin, validate(createSchema), async (req, res) => {
   const { customerId, quantity, liters } = req.validated.body;
   const [result] = await pool.execute(
     'INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES (?, ?, ?, CURDATE(), DATE_FORMAT(NOW(), "%h:%i %p"))',

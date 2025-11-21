@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
 import { config } from './config.js';
 import authRoutes from './routes/auth.js';
 import customerRoutes from './routes/customers.js';
@@ -14,9 +15,34 @@ import { errorHandler } from './middleware/error.js';
 
 const app = express();
 
-app.use(helmet());
-app.use(express.json());
-app.use(morgan('dev'));
+// Security headers with production-ready configuration
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  })
+);
+
+// Compression for better performance
+app.use(compression());
+
+// Request size limiting to prevent DOS attacks
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+
+// Logging
+app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 
 // Robust CORS handling (allows GitHub Pages, localhost, and preflight OPTIONS)
 app.use(
@@ -33,9 +59,9 @@ app.use(
     optionsSuccessStatus: 204,
   })
 );
+
 // Defensive: ensure CORS header is present even on unexpected errors
 app.use((req, res, next) => {
-  // Attach CORS headers defensively; reflect origin if allowed, otherwise omit
   const origin = req.headers.origin;
   const allowed = config.corsAllowedOrigins;
   if (!origin || allowed.includes('*') || allowed.includes(origin)) {
@@ -45,31 +71,44 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
+
 // Ensure preflight requests succeed globally
 app.options('*', cors());
 
-// Rate limit but skip preflight to avoid blocking CORS checks
-app.use(
-  rateLimit({
-    windowMs: 60 * 1000,
-    max: 200,
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.method === 'OPTIONS',
-  })
-);
+// Global rate limit (200 requests per minute)
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS',
+  message: { error: 'Too many requests, please try again later.' },
+});
+app.use(generalLimiter);
 
+// Strict rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per 15 minutes
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts, please try again after 15 minutes.' },
+});
+
+// Health check endpoints
 app.get('/api/health', (req, res) => res.json({ ok: true, env: config.env }));
-// Render default health check path support
 app.get('/healthz', (req, res) => res.json({ ok: true, env: config.env }));
 
-app.use('/api/auth', authRoutes);
+// Routes
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/stats', statsRoutes);
 
+// Error handler (must be last)
 app.use(errorHandler);
 
 export default app;
