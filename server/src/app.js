@@ -15,6 +15,9 @@ import { errorHandler } from './middleware/error.js';
 
 const app = express();
 
+// Trust proxy is required for Render/Heroku (behind load balancer)
+app.set('trust proxy', 1);
+
 // Security headers with production-ready configuration
 app.use(
   helmet({
