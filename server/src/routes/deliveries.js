@@ -8,13 +8,13 @@ const router = express.Router();
 
 router.get('/', requireAuth, async (req, res) => {
   const role = req.user.role;
-  let rows;
+  let result;
   if (role === 'customer') {
-    [rows] = await pool.execute('SELECT * FROM deliveries WHERE customerId = ? ORDER BY date DESC', [req.user.id]);
+    result = await pool.query('SELECT * FROM deliveries WHERE customerId = $1 ORDER BY date DESC', [req.user.id]);
   } else {
-    [rows] = await pool.execute('SELECT * FROM deliveries ORDER BY date DESC');
+    result = await pool.query('SELECT * FROM deliveries ORDER BY date DESC');
   }
-  res.json(rows);
+  res.json(result.rows);
 });
 
 const createSchema = z.object({
@@ -24,14 +24,15 @@ const createSchema = z.object({
     liters: z.number().positive().max(2000).optional(), // Max 2000 liters
   }),
 });
+
 router.post('/', requireAuth, requireAdmin, validate(createSchema), async (req, res) => {
   const { customerId, quantity, liters } = req.validated.body;
-  const [result] = await pool.execute(
-    'INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES (?, ?, ?, CURDATE(), DATE_FORMAT(NOW(), "%h:%i %p"))',
+  const result = await pool.query(
+    'INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES ($1, $2, $3, CURRENT_DATE, TO_CHAR(NOW(), \'HH12:MI AM\')) RETURNING id',
     [customerId, quantity, liters ?? quantity * 18.9]
   );
-  await pool.execute('UPDATE customers SET totalBottles = totalBottles + ?, monthlyConsumption = monthlyConsumption + ? WHERE id = ?', [quantity, quantity, customerId]);
-  res.status(201).json({ id: result.insertId });
+  await pool.query('UPDATE customers SET totalBottles = totalBottles + $1, monthlyConsumption = monthlyConsumption + $2 WHERE id = $3', [quantity, quantity, customerId]);
+  res.status(201).json({ id: result.rows[0].id });
 });
 
 export default router;

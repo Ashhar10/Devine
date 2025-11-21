@@ -23,8 +23,8 @@ const adminSchema = z.object({
 
 router.post('/admin/login', validate(adminSchema), async (req, res) => {
   const { username, password } = req.validated.body;
-  const [rows] = await pool.execute('SELECT id, username, password_hash FROM admins WHERE username = ?', [username]);
-  const user = rows[0];
+  const result = await pool.query('SELECT id, username, password_hash FROM admins WHERE username = $1', [username]);
+  const user = result.rows[0];
 
   // Generic error message to prevent username enumeration
   if (!user) {
@@ -49,8 +49,8 @@ const custSchema = z.object({
 
 router.post('/customer/login', validate(custSchema), async (req, res) => {
   const { phone, password } = req.validated.body;
-  const [rows] = await pool.execute('SELECT id, name, phone, password_hash FROM customers WHERE phone = ?', [phone]);
-  const c = rows[0];
+  const result = await pool.query('SELECT id, name, phone, password_hash FROM customers WHERE phone = $1', [phone]);
+  const c = result.rows[0];
 
   // Generic error message to prevent phone enumeration
   if (!c) {

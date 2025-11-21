@@ -1,19 +1,27 @@
-import mysql from 'mysql2/promise';
+import pkg from 'pg';
+const { Pool } = pkg;
 import { config } from './config.js';
 
-export const pool = mysql.createPool(config.db);
+// Create PostgreSQL connection pool
+export const pool = new Pool(config.db);
+
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
 
 export async function withTransaction(run) {
-  const conn = await pool.getConnection();
+  const client = await pool.connect();
   try {
-    await conn.beginTransaction();
-    const res = await run(conn);
-    await conn.commit();
+    await client.query('BEGIN');
+    const res = await run(client);
+    await client.query('COMMIT');
     return res;
   } catch (err) {
-    await conn.rollback();
+    await client.query('ROLLBACK');
     throw err;
   } finally {
-    conn.release();
+    client.release();
   }
 }

@@ -9,13 +9,13 @@ const router = express.Router();
 
 router.get('/', requireAuth, async (req, res) => {
   const role = req.user.role;
-  let rows;
+  let result;
   if (role === 'customer') {
-    [rows] = await pool.execute('SELECT p.*, c.name AS customer_name FROM payments p JOIN customers c ON c.id=p.customerId WHERE p.customerId = ? ORDER BY p.date DESC', [req.user.id]);
+    result = await pool.query('SELECT p.*, c.name AS customer_name FROM payments p JOIN customers c ON c.id=p.customerId WHERE p.customerId = $1 ORDER BY p.date DESC', [req.user.id]);
   } else {
-    [rows] = await pool.execute('SELECT p.*, c.name AS customer_name FROM payments p JOIN customers c ON c.id=p.customerId ORDER BY p.date DESC');
+    result = await pool.query('SELECT p.*, c.name AS customer_name FROM payments p JOIN customers c ON c.id=p.customerId ORDER BY p.date DESC');
   }
-  res.json(rows);
+  res.json(result.rows);
 });
 
 const createSchema = z.object({
@@ -25,13 +25,15 @@ const createSchema = z.object({
     method: z.enum(['Cash', 'Card', 'Bank Transfer', 'Online']).default('Cash'),
   }),
 });
+
 router.post('/', requireAuth, requireAdmin, validate(createSchema), async (req, res) => {
   const { customerId, amount, method } = req.validated.body;
-  await withTransaction(async (conn) => {
-    await conn.execute('INSERT INTO payments (customerId, amount, method, date) VALUES (?, ?, ?, CURDATE())', [customerId, amount, method]);
-    const [[cust]] = await conn.query('SELECT renewalDate FROM customers WHERE id=?', [customerId]);
-    const nextRenewal = addMonth(cust.renewalDate || new Date().toISOString().split('T')[0]);
-    await conn.execute('UPDATE customers SET isPaid=1, monthlyConsumption=0, renewalDate=? WHERE id=?', [nextRenewal, customerId]);
+  await withTransaction(async (client) => {
+    await client.query('INSERT INTO payments (customerId, amount, method, date) VALUES ($1, $2, $3, CURRENT_DATE)', [customerId, amount, method]);
+    const custResult = await client.query('SELECT renewalDate FROM customers WHERE id=$1', [customerId]);
+    const cust = custResult.rows[0];
+    const nextRenewal = addMonth(cust.renewaldate || new Date().toISOString().split('T')[0]);
+    await client.query('UPDATE customers SET isPaid=1, monthlyConsumption=0, renewalDate=$1 WHERE id=$2', [nextRenewal, customerId]);
   });
   res.status(201).json({ ok: true });
 });

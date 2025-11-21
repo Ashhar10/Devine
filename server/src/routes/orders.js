@@ -8,13 +8,13 @@ const router = express.Router();
 
 router.get('/', requireAuth, async (req, res) => {
   const role = req.user.role;
-  let rows;
+  let result;
   if (role === 'customer') {
-    [rows] = await pool.execute('SELECT * FROM orders WHERE customerId = ? ORDER BY date DESC', [req.user.id]);
+    result = await pool.query('SELECT * FROM orders WHERE customerId = $1 ORDER BY date DESC', [req.user.id]);
   } else {
-    [rows] = await pool.execute('SELECT * FROM orders ORDER BY date DESC');
+    result = await pool.query('SELECT * FROM orders ORDER BY date DESC');
   }
-  res.json(rows);
+  res.json(result.rows);
 });
 
 const createSchema = z.object({
@@ -23,6 +23,7 @@ const createSchema = z.object({
     quantity: z.number().int().positive().max(100), // Max 100 bottles per order
   }),
 });
+
 router.post('/', requireAuth, validate(createSchema), async (req, res) => {
   const { customerId, quantity } = req.validated.body;
 
@@ -31,22 +32,23 @@ router.post('/', requireAuth, validate(createSchema), async (req, res) => {
     return res.status(403).json({ error: 'You can only create orders for yourself' });
   }
 
-  const [result] = await pool.execute(
-    'INSERT INTO orders (customerId, quantity, status, date, time) VALUES (?, ?, ?, CURDATE(), DATE_FORMAT(NOW(), "%h:%i %p"))',
+  const result = await pool.query(
+    'INSERT INTO orders (customerId, quantity, status, date, time) VALUES ($1, $2, $3, CURRENT_DATE, TO_CHAR(NOW(), \'HH12:MI AM\')) RETURNING id',
     [customerId, quantity, 'pending']
   );
-  res.status(201).json({ id: result.insertId });
+  res.status(201).json({ id: result.rows[0].id });
 });
 
 router.put('/:id/delivered', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  await withTransaction(async (conn) => {
-    const [[order]] = await conn.query('SELECT * FROM orders WHERE id=?', [id]);
+  await withTransaction(async (client) => {
+    const orderResult = await client.query('SELECT * FROM orders WHERE id=$1', [id]);
+    const order = orderResult.rows[0];
     if (!order) throw Object.assign(new Error('Order not found'), { status: 404 });
-    await conn.execute('UPDATE orders SET status=?, deliveredDate=CURDATE() WHERE id=?', ['delivered', id]);
-    await conn.execute(
-      'INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES (?, ?, ?, CURDATE(), DATE_FORMAT(NOW(), "%h:%i %p"))',
-      [order.customerId, order.quantity, order.quantity * 18.9]
+    await client.query('UPDATE orders SET status=$1, deliveredDate=CURRENT_DATE WHERE id=$2', ['delivered', id]);
+    await client.query(
+      'INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES ($1, $2, $3, CURRENT_DATE, TO_CHAR(NOW(), \'HH12:MI AM\'))',
+      [order.customerid, order.quantity, order.quantity * 18.9]
     );
   });
   res.json({ ok: true });
