@@ -9,11 +9,12 @@ const router = express.Router();
 
 router.get('/', requireAuth, async (req, res) => {
   const role = req.user.role;
+  const query = 'SELECT p.id, p.customerId AS "customerId", p.amount, p.method, p.date, c.name AS "customerName" FROM payments p JOIN customers c ON c.id=p.customerId';
   let result;
   if (role === 'customer') {
-    result = await pool.query('SELECT p.*, c.name AS customer_name FROM payments p JOIN customers c ON c.id=p.customerId WHERE p.customerId = $1 ORDER BY p.date DESC', [req.user.id]);
+    result = await pool.query(`${query} WHERE p.customerId = $1 ORDER BY p.date DESC`, [req.user.id]);
   } else {
-    result = await pool.query('SELECT p.*, c.name AS customer_name FROM payments p JOIN customers c ON c.id=p.customerId ORDER BY p.date DESC');
+    result = await pool.query(`${query} ORDER BY p.date DESC`);
   }
   res.json(result.rows);
 });
@@ -30,9 +31,9 @@ router.post('/', requireAuth, requireAdmin, validate(createSchema), async (req, 
   const { customerId, amount, method } = req.validated.body;
   await withTransaction(async (client) => {
     await client.query('INSERT INTO payments (customerId, amount, method, date) VALUES ($1, $2, $3, CURRENT_DATE)', [customerId, amount, method]);
-    const custResult = await client.query('SELECT renewalDate FROM customers WHERE id=$1', [customerId]);
+    const custResult = await client.query('SELECT renewalDate AS "renewalDate" FROM customers WHERE id=$1', [customerId]);
     const cust = custResult.rows[0];
-    const nextRenewal = addMonth(cust.renewaldate || new Date().toISOString().split('T')[0]);
+    const nextRenewal = addMonth(cust.renewalDate || new Date().toISOString().split('T')[0]);
     await client.query('UPDATE customers SET isPaid=1, monthlyConsumption=0, renewalDate=$1 WHERE id=$2', [nextRenewal, customerId]);
   });
   res.status(201).json({ ok: true });

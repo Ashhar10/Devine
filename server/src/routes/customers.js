@@ -8,17 +8,29 @@ import { validate } from '../middleware/validate.js';
 const router = express.Router();
 
 router.get('/', requireAuth, async (req, res) => {
-  const result = await pool.query('SELECT id, name, phone, address, city, email, joinDate, renewalDate, totalBottles, monthlyConsumption, isPaid FROM customers ORDER BY id DESC');
+  const result = await pool.query(
+    'SELECT id, name, phone, address, city, email, joinDate AS "joinDate", renewalDate AS "renewalDate", totalBottles AS "totalBottles", monthlyConsumption AS "monthlyConsumption", isPaid AS "isPaid" FROM customers ORDER BY id DESC'
+  );
   res.json(result.rows);
 });
 
 router.get('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  const custResult = await pool.query('SELECT * FROM customers WHERE id = $1', [id]);
+  const custResult = await pool.query(
+    'SELECT id, name, phone, address, city, email, joinDate AS "joinDate", renewalDate AS "renewalDate", totalBottles AS "totalBottles", monthlyConsumption AS "monthlyConsumption", isPaid AS "isPaid" FROM customers WHERE id = $1',
+    [id]
+  );
   const customer = custResult.rows[0];
   if (!customer) return res.status(404).json({ error: 'Not found' });
-  const delResult = await pool.query('SELECT * FROM deliveries WHERE customerId = $1 ORDER BY date DESC', [id]);
-  const payResult = await pool.query('SELECT * FROM payments WHERE customerId = $1 ORDER BY date DESC', [id]);
+
+  const delResult = await pool.query(
+    'SELECT id, customerId AS "customerId", quantity, liters, date, time FROM deliveries WHERE customerId = $1 ORDER BY date DESC',
+    [id]
+  );
+  const payResult = await pool.query(
+    'SELECT id, customerId AS "customerId", amount, method, date FROM payments WHERE customerId = $1 ORDER BY date DESC',
+    [id]
+  );
   customer.deliveries = delResult.rows;
   customer.payments = payResult.rows;
   res.json(customer);
