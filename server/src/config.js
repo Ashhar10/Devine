@@ -57,7 +57,7 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET, // No fallback - must be set!
   // Comma-separated list of allowed origins, default to GitHub Pages and localhost.
   corsAllowedOrigins:
-    (process.env.ALLOW_ORIGINS || process.env.ALLOW_ORIGIN || 'https://ashhar10.github.io,http://localhost:8000')
+    (process.env.ALLOW_ORIGINS || process.env.ALLOW_ORIGIN || 'https://ashhar10.github.io,http://localhost:8000,https://devine-eu5yhxjqp-ashhar10s-projects.vercel.app')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean),
