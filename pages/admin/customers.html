@@ -1,107 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Customers</title>
-    <link rel="stylesheet" href="../../assets/css/base.css" />
-    <script src="../../config.js"></script>
-  </head>
-  <body>
-    <div id="navbar"></div>
-    <main class="min-h-screen bg-gray-50">
-      <div class="container py-8">
-        <div class="flex justify-between items-center mb-6">
-          <button class="text-cyan-600 font-semibold" onclick="location.href='./dashboard.html'">← Back to Dashboard</button>
-          <button id="btn-open-add" class="btn btn-primary">➕ Add New Customer</button>
-        </div>
 
-        <div class="bg-cyan-50 border rounded-xl p-4 mb-6">
-          <p class="text-cyan-600 font-semibold">💡 Click View to see details or Delete to remove a customer.</p>
-        </div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Customers</title>
+  <link rel="stylesheet" href="../../assets/css/base.css" />
+  <script src="../../config.js"></script>
+</head>
 
-        <div class="card">
-          <div class="card-body">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Address</th>
-                  <th>City</th>
-                  <th>Join Date</th>
-                  <th>Renewal</th>
-                  <th>Bottles</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="customers-tbody"></tbody>
-            </table>
+<body>
+  <div id="navbar"></div>
+  <main class="min-h-screen bg-gray-50">
+    <div class="container py-8">
+      <div class="flex justify-between items-center mb-6">
+        <button class="text-cyan-600 font-semibold" onclick="location.href='./dashboard.html'">← Back to
+          Dashboard</button>
+        <button id="btn-open-add" class="btn btn-primary">➕ Add New Customer</button>
+      </div>
+
+      <div class="bg-cyan-50 border rounded-xl p-4 mb-6">
+        <p class="text-cyan-600 font-semibold">💡 Click View to see details or Delete to remove a customer.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>Join Date</th>
+                <th>Renewal</th>
+                <th>Bottles</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customers-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add Customer Modal -->
+      <div id="add-modal" class="overlay hidden">
+        <div class="bg-white rounded-2xl p-8" style="max-width:720px;width:100%;max-height:90vh;overflow:auto;">
+          <div class="flex justify-between mb-6">
+            <h2 class="text-3xl font-bold text-cyan-600">Add Customer</h2>
+            <button id="btn-close-add">✕</button>
           </div>
-        </div>
-
-        <!-- Add Customer Modal -->
-        <div id="add-modal" class="overlay hidden">
-          <div class="bg-white rounded-2xl p-8" style="max-width:720px;width:100%;max-height:90vh;overflow:auto;">
-            <div class="flex justify-between mb-6">
-              <h2 class="text-3xl font-bold text-cyan-600">Add Customer</h2>
-              <button id="btn-close-add">✕</button>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-semibold mb-2">Full Name *</label>
+              <input type="text" id="add-name" class="border rounded-xl px-4 py-3" placeholder="Enter full name" />
             </div>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-semibold mb-2">Full Name *</label>
-                <input type="text" id="add-name" class="border rounded-xl px-4 py-3" placeholder="Enter full name" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Phone *</label>
-                <input type="tel" id="add-phone" class="border rounded-xl px-4 py-3" placeholder="03XX-XXXXXXX" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Password *</label>
-                <input type="password" id="add-password" class="border rounded-xl px-4 py-3" placeholder="Enter password" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Email</label>
-                <input type="email" id="add-email" class="border rounded-xl px-4 py-3" placeholder="example@email.com" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Address *</label>
-                <textarea id="add-address" class="border rounded-xl px-4 py-3" rows="3" placeholder="Enter address"></textarea>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">City</label>
-                <input type="text" id="add-city" class="border rounded-xl px-4 py-3" placeholder="Enter city" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2">Join Date</label>
-                <input type="date" id="add-join" class="border rounded-xl px-4 py-3" />
-              </div>
-              <button id="btn-add" class="w-full btn btn-primary text-lg">Add Customer</button>
+            <div>
+              <label class="block text-sm font-semibold mb-2">Phone *</label>
+              <input type="tel" id="add-phone" class="border rounded-xl px-4 py-3" placeholder="03XX-XXXXXXX" />
             </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2">Password *</label>
+              <input type="password" id="add-password" class="border rounded-xl px-4 py-3"
+                placeholder="Min 8 chars, 1 letter, 1 number" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2">Email</label>
+              <input type="email" id="add-email" class="border rounded-xl px-4 py-3" placeholder="example@email.com" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2">Address *</label>
+              <textarea id="add-address" class="border rounded-xl px-4 py-3" rows="3"
+                placeholder="Enter address"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2">City</label>
+              <input type="text" id="add-city" class="border rounded-xl px-4 py-3" placeholder="Enter city" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2">Join Date</label>
+              <input type="date" id="add-join" class="border rounded-xl px-4 py-3" />
+            </div>
+            <button id="btn-add" class="w-full btn btn-primary text-lg">Add Customer</button>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <script type="module">
-      import { renderNavbar } from '../../assets/js/ui.js';
-      import { state, addCustomer, deleteCustomer } from '../../assets/js/state.js';
-      import { checkRenewalStatus } from '../../assets/js/utils.js';
-      renderNavbar({ isAdmin: true });
+  <script type="module">
+    import { renderNavbar } from '../../assets/js/ui.js';
+    import { state, addCustomer, deleteCustomer } from '../../assets/js/state.js';
+    import { checkRenewalStatus } from '../../assets/js/utils.js';
+    renderNavbar({ isAdmin: true });
 
-      const tbody = document.getElementById('customers-tbody');
-      const openAdd = document.getElementById('btn-open-add');
-      const closeAdd = document.getElementById('btn-close-add');
-      const addModal = document.getElementById('add-modal');
-      const addBtn = document.getElementById('btn-add');
+    const tbody = document.getElementById('customers-tbody');
+    const openAdd = document.getElementById('btn-open-add');
+    const closeAdd = document.getElementById('btn-close-add');
+    const addModal = document.getElementById('add-modal');
+    const addBtn = document.getElementById('btn-add');
 
-      function renderCustomers() {
-        if (state.customers.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="9" class="text-center text-gray-500 py-8">No customers found.</td></tr>`;
-          return;
-        }
-        tbody.innerHTML = state.customers.map((c, idx) => `
+    function renderCustomers() {
+      if (state.customers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-gray-500 py-8">No customers found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = state.customers.map((c, idx) => `
           <tr class="${idx % 2 === 0 ? 'row-alt' : ''}">
             <td class="font-semibold">${c.name}</td>
             <td>${c.phone}</td>
@@ -123,36 +128,37 @@
             </td>
           </tr>
         `).join('');
-        Array.from(document.querySelectorAll('[data-del]')).forEach(b => {
-          b.addEventListener('click', async () => {
-            const id = Number(b.getAttribute('data-del'));
-            if (confirm('This customer will be deleted permanently. Continue?')) {
-              await deleteCustomer(id);
-              renderCustomers();
-              alert('Customer deleted successfully');
-            }
-          });
+      Array.from(document.querySelectorAll('[data-del]')).forEach(b => {
+        b.addEventListener('click', async () => {
+          const id = Number(b.getAttribute('data-del'));
+          if (confirm('This customer will be deleted permanently. Continue?')) {
+            await deleteCustomer(id);
+            renderCustomers();
+            alert('Customer deleted successfully');
+          }
         });
-      }
-
-      renderCustomers();
-
-      openAdd.addEventListener('click', () => { addModal.classList.remove('hidden'); });
-      closeAdd.addEventListener('click', () => { addModal.classList.add('hidden'); });
-      addBtn.addEventListener('click', async () => {
-        const name = document.getElementById('add-name').value.trim();
-        const phone = document.getElementById('add-phone').value.trim();
-        const password = document.getElementById('add-password').value.trim();
-        const email = document.getElementById('add-email').value.trim();
-        const address = document.getElementById('add-address').value.trim();
-        const city = document.getElementById('add-city').value.trim();
-        const joinDate = document.getElementById('add-join').value || new Date().toISOString().split('T')[0];
-        if (!name || !phone || !password || !address) { alert('Please fill required fields'); return; }
-        await addCustomer({ name, phone, password, address, city, email, joinDate });
-        addModal.classList.add('hidden');
-        renderCustomers();
-        alert('Customer added successfully');
       });
-    </script>
-  </body>
+    }
+
+    renderCustomers();
+
+    openAdd.addEventListener('click', () => { addModal.classList.remove('hidden'); });
+    closeAdd.addEventListener('click', () => { addModal.classList.add('hidden'); });
+    addBtn.addEventListener('click', async () => {
+      const name = document.getElementById('add-name').value.trim();
+      const phone = document.getElementById('add-phone').value.trim();
+      const password = document.getElementById('add-password').value.trim();
+      const email = document.getElementById('add-email').value.trim();
+      const address = document.getElementById('add-address').value.trim();
+      const city = document.getElementById('add-city').value.trim();
+      const joinDate = document.getElementById('add-join').value || new Date().toISOString().split('T')[0];
+      if (!name || !phone || !password || !address) { alert('Please fill required fields'); return; }
+      await addCustomer({ name, phone, password, address, city, email, joinDate });
+      addModal.classList.add('hidden');
+      renderCustomers();
+      alert('Customer added successfully');
+    });
+  </script>
+</body>
+
 </html>
