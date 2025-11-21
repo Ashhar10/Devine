@@ -18,7 +18,7 @@ function validateConfig() {
       errors.push('DB_PASSWORD or DATABASE_URL must be set in production');
     }
     if (!process.env.ALLOW_ORIGINS && !process.env.ALLOW_ORIGIN) {
-      errors.push('ALLOW_ORIGINS must be configured in production');
+      console.warn('⚠️ ALLOW_ORIGINS not set in production. Using default CORS origins.');
     }
   }
 
