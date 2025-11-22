@@ -161,7 +161,12 @@ export async function addDelivery(customerId, quantity, liters = quantity * LITE
 // Orders
 export async function placeOrder(customerId, quantity) {
   await request('POST', '/orders', { customerId, quantity });
-  await syncCustomer();
+  // Sync based on user role
+  if (state.userType === 'admin') {
+    await syncAll();
+  } else {
+    await syncCustomer();
+  }
   return true;
 }
 
