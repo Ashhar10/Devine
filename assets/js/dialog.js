@@ -82,9 +82,13 @@ function createDialog(title, message, type = 'alert') {
 
     const box = document.createElement('div');
     box.className = 'dialog-box';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.setAttribute('aria-labelledby', 'dialog-title');
 
     const titleEl = document.createElement('h3');
     titleEl.className = 'dialog-title';
+    titleEl.id = 'dialog-title';
     titleEl.textContent = title;
 
     const msgEl = document.createElement('p');
