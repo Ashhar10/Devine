@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,6 +10,39 @@
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../config.js"></script>
+    <style>
+        body {
+            animation: fadeIn 0.6s ease;
+        }
+
+        .metric-card {
+            animation: slideInRight 0.5s ease;
+        }
+
+        .metric-card:nth-child(1) {
+            animation-delay: 0.1s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .metric-card:nth-child(2) {
+            animation-delay: 0.2s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .metric-card:nth-child(3) {
+            animation-delay: 0.3s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .metric-card:nth-child(4) {
+            animation-delay: 0.4s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+    </style>
 </head>
 
 <body style="background: #F9FAFB;">
@@ -51,8 +85,8 @@
         <div class="container" style="max-width: 1200px; margin: 0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
                 <h1 style="font-size: 28px; font-weight: 700; color: #111827;">Consumption Analytics</h1>
-                <button onclick="location.href='./dashboard-new.html'"
-                    style="background: #374151; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 500; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <button onclick="location.href='./dashboard-new.html'" class="btn-glossy"
+                    style="background: linear-gradient(135deg, #374151 0%, #4B5563 100%); color: white; padding: 10px 20px; border-radius: 12px; font-weight: 500; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -65,7 +99,7 @@
             <div
                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px;">
                 <!-- This Month -->
-                <div class="metric-card">
+                <div class="metric-card metric-card-glass hover-lift-smooth">
                     <div class="metric-card-icon blue">
                         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -78,7 +112,7 @@
                 </div>
 
                 <!-- Avg Daily Bottles -->
-                <div class="metric-card">
+                <div class="metric-card metric-card-glass hover-lift-smooth">
                     <div class="metric-card-icon purple">
                         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -91,7 +125,7 @@
                 </div>
 
                 <!-- Total Delivered -->
-                <div class="metric-card">
+                <div class="metric-card metric-card-glass hover-lift-smooth">
                     <div class="metric-card-icon green">
                         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -104,7 +138,7 @@
                 </div>
 
                 <!-- Empty Returned -->
-                <div class="metric-card">
+                <div class="metric-card metric-card-glass hover-lift-smooth">
                     <div class="metric-card-icon orange">
                         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -118,15 +152,14 @@
             </div>
 
             <!-- Consumption Trend Chart -->
-            <div
-                style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 32px;">
+            <div class="chart-container-glass animate-fade-in" style="margin-bottom: 32px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h2 style="font-size: 18px; font-weight: 700; color: #111827;">Consumption Trend</h2>
                     <div style="display: flex; gap: 8px;">
-                        <button id="btn-monthly" class="toggle-btn active"
-                            style="padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid #E5E7EB; background: #4F46E5; color: white;">Monthly</button>
-                        <button id="btn-daily" class="toggle-btn"
-                            style="padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid #E5E7EB; background: white; color: #6B7280;">Daily</button>
+                        <button id="btn-monthly" class="toggle-btn active btn-glossy ripple"
+                            style="padding: 8px 16px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%); color: white;">Monthly</button>
+                        <button id="btn-daily" class="toggle-btn btn-glossy ripple"
+                            style="padding: 8px 16px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid #E5E7EB; background: white; color: #6B7280;">Daily</button>
                     </div>
                 </div>
                 <div style="height: 300px; position: relative;">
@@ -135,7 +168,8 @@
             </div>
 
             <!-- Monthly Breakdown Table -->
-            <div class="data-table-container">
+            <div class="data-table-container animate-fade-in"
+                style="animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards;">
                 <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 20px;">Monthly Breakdown
                 </h2>
                 <table class="data-table">
@@ -158,71 +192,143 @@
 
     <script type="module">
         import { state } from '../../assets/js/state.js';
+        import { getConsumptionData, prepareChartData, showNoDataMessage } from '../../assets/js/chart-data.js';
 
         let consumptionChart = null;
 
-        // Mock data
-        const monthlyData = [
-            { month: 'December 2024', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'January 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'February 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'March 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'April 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'May 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'June 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'July 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'August 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'September 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'October 2025', delivered: 0, returned: 0, spent: 0, avgDay: '0.0' },
-            { month: 'November 2025', delivered: 20, returned: 18, spent: 1600, avgDay: '0.9' }
-        ];
+        // Load real user data
+        async function loadData() {
+            const { monthlyData } = await getConsumptionData();
 
-        function initChart() {
+            // Check if user has any data
+            const hasData = Object.keys(monthlyData).length > 0;
+
+            if (!hasData) {
+                showNoDataMessage('consumption-chart');
+                document.getElementById('monthly-breakdown').innerHTML = `
+                    <tr><td colspan="5" style="text-align: center; padding: 40px; color: #6B7280;">No consumption data available yet</td></tr>
+                `;
+                return;
+            }
+
+            // Prepare data for chart and table
+            const months = [];
+            const deliveredData = [];
+            const returnedData = [];
+            const tableData = [];
+
+            // Get last 12 months
+            const now = new Date();
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const monthLabel = date.toLocaleDateString('en-US', { month: 'short' });
+                const monthFull = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+                const data = monthlyData[monthKey] || { delivered: 0, returned: 0, spent: 0 };
+
+                months.push(monthLabel);
+                deliveredData.push(data.delivered);
+                returnedData.push(data.returned);
+
+                const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                const avgDay = data.delivered > 0 ? (data.delivered / daysInMonth).toFixed(1) : '0.0';
+
+                tableData.push({
+                    month: monthFull,
+                    delivered: data.delivered,
+                    returned: data.returned,
+                    spent: data.spent,
+                    avgDay
+                });
+            }
+
+            initChart(months, deliveredData, returnedData);
+            loadMonthlyBreakdown(tableData);
+        }
+
+        function initChart(labels, deliveredData, returnedData) {
             const ctx = document.getElementById('consumption-chart').getContext('2d');
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
             consumptionChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+                    labels,
                     datasets: [
                         {
                             label: 'Bottles Delivered',
-                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20],
+                            data: deliveredData,
                             borderColor: '#3B82F6',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
                             tension: 0.4,
-                            fill: true
+                            fill: true,
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         },
                         {
                             label: 'Empty Returned',
-                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18],
+                            data: returnedData,
                             borderColor: '#10B981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
                             tension: 0.4,
-                            fill: true
+                            fill: true,
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    },
                     plugins: {
                         legend: {
                             display: true,
                             position: 'top',
-                            align: 'end'
+                            align: 'end',
+                            labels: {
+                                color: isDark ? '#F9FAFB' : '#111827',
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                            titleColor: isDark ? '#F9FAFB' : '#111827',
+                            bodyColor: isDark ? '#D1D5DB' : '#6B7280',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' bottles';
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: {
-                                color: '#F3F4F6'
+                                color: isDark ? 'rgba(255, 255, 255, 0.1)' : '#F3F4F6'
+                            },
+                            ticks: {
+                                color: isDark ? '#D1D5DB' : '#6B7280'
                             }
                         },
                         x: {
                             grid: {
                                 display: false
+                            },
+                            ticks: {
+                                color: isDark ? '#D1D5DB' : '#6B7280'
                             }
                         }
                     }
@@ -230,10 +336,10 @@
             });
         }
 
-        function loadMonthlyBreakdown() {
+        function loadMonthlyBreakdown(tableData) {
             const tbody = document.getElementById('monthly-breakdown');
-            tbody.innerHTML = monthlyData.map(row => `
-        <tr>
+            tbody.innerHTML = tableData.map(row => `
+        <tr class="stagger-item">
           <td style="font-weight: 500;">${row.month}</td>
           <td>${row.delivered}</td>
           <td>${row.returned}</td>
@@ -245,25 +351,29 @@
 
         // Toggle buttons
         document.getElementById('btn-monthly').addEventListener('click', function () {
-            document.getElementById('btn-monthly').classList.add('active');
-            document.getElementById('btn-monthly').style.background = '#4F46E5';
-            document.getElementById('btn-monthly').style.color = 'white';
+            this.classList.add('active');
+            this.style.background = 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)';
+            this.style.color = 'white';
+            this.style.border = 'none';
             document.getElementById('btn-daily').classList.remove('active');
             document.getElementById('btn-daily').style.background = 'white';
             document.getElementById('btn-daily').style.color = '#6B7280';
+            document.getElementById('btn-daily').style.border = '1px solid #E5E7EB';
         });
 
         document.getElementById('btn-daily').addEventListener('click', function () {
-            document.getElementById('btn-daily').classList.add('active');
-            document.getElementById('btn-daily').style.background = '#4F46E5';
-            document.getElementById('btn-daily').style.color = 'white';
+            this.classList.add('active');
+            this.style.background = 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)';
+            this.style.color = 'white';
+            this.style.border = 'none';
             document.getElementById('btn-monthly').classList.remove('active');
             document.getElementById('btn-monthly').style.background = 'white';
             document.getElementById('btn-monthly').style.color = '#6B7280';
+            document.getElementById('btn-monthly').style.border = '1px solid #E5E7EB';
         });
 
-        initChart();
-        loadMonthlyBreakdown();
+        // Load data on page load
+        loadData();
     </script>
 </body>
 

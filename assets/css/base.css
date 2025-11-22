@@ -9,6 +9,9 @@
 /* Import Dark Mode Styles */
 @import url('./dark-mode.css');
 
+/* Import Glassmorphism & Animations */
+@import url('./glassmorphism.css');
+
 /* ========================================
    CSS VARIABLES - DESIGN TOKENS
    ======================================== */
