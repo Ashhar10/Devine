@@ -7,11 +7,26 @@ export function calculateMonthlyBill(customer) {
 }
 
 export function calculateBalance(customer, payments) {
+  if (!customer) return 0;
+
   const monthlyBill = calculateMonthlyBill(customer);
+
+  // Ensure payments is an array
+  if (!Array.isArray(payments)) {
+    console.warn('calculateBalance: payments is not an array', payments);
+    return monthlyBill;
+  }
+
+  // Calculate total paid, ensuring both IDs are numbers for comparison
+  const customerId = Number(customer.id);
   const totalPaid = payments
-    .filter(p => p.customerId === customer.id)
-    .reduce((sum, p) => sum + p.amount, 0);
-  return monthlyBill - totalPaid;
+    .filter(p => Number(p.customerId) === customerId)
+    .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+  const balance = monthlyBill - totalPaid;
+
+  // Ensure we never return NaN
+  return isNaN(balance) ? monthlyBill : balance;
 }
 
 export function checkRenewalStatus(customer) {
