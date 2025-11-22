@@ -234,12 +234,37 @@ export async function showFormDialog(title, fields, customers = []) {
 
     form.onsubmit = (e) => {
       e.preventDefault();
+
+      // Validate all fields
+      let isValid = true;
       const result = {};
+
       fields.forEach(field => {
-        const value = formData[field.name].value;
-        result[field.name] = field.type === 'number' ? Number(value) : value;
+        const input = formData[field.name];
+        const value = input.value;
+
+        // Check required fields
+        if (field.required !== false && !value) {
+          isValid = false;
+          input.style.borderColor = '#ef4444';
+          return;
+        } else {
+          input.style.borderColor = '#d1d5db';
+        }
+
+        // Convert types
+        if (field.type === 'number') {
+          result[field.name] = Number(value);
+        } else if (field.type === 'select' && field.name === 'customerId') {
+          result[field.name] = Number(value);
+        } else {
+          result[field.name] = value;
+        }
       });
-      close(result);
+
+      if (isValid) {
+        close(result);
+      }
     };
 
     box.appendChild(titleEl);
