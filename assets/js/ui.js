@@ -1,6 +1,8 @@
 // Shared UI helpers: navbar rendering and simple navigation
 import { state, logout } from './state.js';
+import { initInteractions } from './animations.js';
 export { showAlert, showConfirm, showFormDialog, showMessagingOptions } from './dialog.js';
+export { setButtonLoading, getSkeletonLoader } from './animations.js';
 
 export function renderNavbar({ isAdmin = false }) {
   const el = document.getElementById('navbar');
@@ -31,12 +33,23 @@ export function linkTo(path) { window.location.href = new URL(path, window.locat
 export async function initPage({ requireAdmin = false, requireCustomer = false } = {}) {
   const { checkSession, state } = await import('./state.js');
 
-  // Show loading overlay if needed
-  const loading = document.createElement('div');
-  loading.id = 'page-loading';
-  loading.style.cssText = 'position:fixed;inset:0;background:white;z-index:9999;display:flex;justify-content:center;align-items:center;font-size:1.5rem;color:#0891b2;';
-  loading.innerText = 'Loading...';
-  document.body.appendChild(loading);
+  // Initialize animations and interactions
+  initInteractions();
+
+  // Create global loader if it doesn't exist
+  let loading = document.getElementById('global-loader');
+  if (!loading) {
+    loading = document.createElement('div');
+    loading.id = 'global-loader';
+    loading.innerHTML = `
+      <div class="loader-content">
+        <div class="water-drop"></div>
+        <h3 style="color: var(--color-primary); font-weight: bold; margin-bottom: 8px;">Devine Water</h3>
+        <p style="color: var(--color-text-muted); font-size: 14px;">Loading...</p>
+      </div>
+    `;
+    document.body.appendChild(loading);
+  }
 
   try {
     await checkSession();
@@ -67,6 +80,12 @@ export async function initPage({ requireAdmin = false, requireCustomer = false }
     console.error('Init failed:', e);
     return false;
   } finally {
-    loading.remove();
+    // Fade out loader
+    setTimeout(() => {
+      loading.style.opacity = '0';
+      setTimeout(() => {
+        loading.style.display = 'none';
+      }, 500);
+    }, 500);
   }
 }

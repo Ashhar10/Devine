@@ -6,10 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Devine Water — Login</title>
   <link rel="stylesheet" href="../assets/css/login.css" />
+  <link rel="stylesheet" href="../assets/css/animations.css" />
   <script src="../config.js"></script>
 </head>
 
 <body>
+  <div id="global-loader">
+    <div class="loader-content">
+      <div class="water-drop"></div>
+      <h3 style="color: var(--color-primary); font-weight: bold; margin-bottom: 8px;">Devine Water</h3>
+      <p style="color: var(--color-text-muted); font-size: 14px;">Loading...</p>
+    </div>
+  </div>
   <div class="login-container">
     <div class="login-background"></div>
     <div class="login-card">
@@ -139,12 +147,17 @@
         return;
       }
 
+      // Import loading helper
+      const { setButtonLoading } = await import('../assets/js/ui.js');
+      setButtonLoading(loginBtn, true, 'Logging in...');
+
       if (loginType === 'admin') {
         try {
           await loginAdmin(u, p);
           window.location.href = new URL('./admin/dashboard.html', window.location.href).href;
         } catch (e) {
           setError(e.message || 'Invalid username or password');
+          setButtonLoading(loginBtn, false);
         }
       } else {
         try {
@@ -152,6 +165,7 @@
           window.location.href = new URL('./customer/dashboard.html', window.location.href).href;
         } catch (e) {
           setError(e.message || 'Invalid phone or password');
+          setButtonLoading(loginBtn, false);
         }
       }
     });
