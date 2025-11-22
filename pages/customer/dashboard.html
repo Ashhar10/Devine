@@ -85,7 +85,7 @@
   <script type="module">
     import { renderNavbar, initPage } from '../../assets/js/ui.js';
     import { state, placeOrder } from '../../assets/js/state.js';
-    import { calculateMonthlyBill, checkRenewalStatus, PRICE_PER_BOTTLE } from '../../assets/js/utils.js';
+    import { calculateMonthlyBill, calculateBalance, checkRenewalStatus, PRICE_PER_BOTTLE } from '../../assets/js/utils.js';
 
     async function renderDashboard() {
       const user = state.currentUser;
@@ -93,15 +93,27 @@
       document.getElementById('addr').textContent = user.address || '';
       document.getElementById('stat-total').textContent = String(user.totalBottles || 0);
       document.getElementById('stat-month').textContent = String(user.monthlyConsumption || 0);
-      document.getElementById('stat-bill').textContent = `Rs. ${calculateMonthlyBill(user)}`;
+
+      // Calculate balance (monthly bill - payments)
+      const monthlyBill = calculateMonthlyBill(user);
+      const balance = calculateBalance(user, state.payments);
+      const totalPaid = monthlyBill - balance;
+
+      // Show balance instead of bill
+      document.getElementById('stat-bill').textContent = `Rs. ${balance}`;
 
       const due = (!user.isPaid || checkRenewalStatus(user));
       if (due) {
-        const dueText = `Rs. ${calculateMonthlyBill(user)} - Due: ${user.renewalDate}`;
+        const isPartiallyPaid = totalPaid > 0 && balance > 0;
+        const dueText = isPartiallyPaid
+          ? `Rs. ${balance} remaining (Paid: ${totalPaid} / ${monthlyBill}) - Due: ${user.renewalDate}`
+          : `Rs. ${balance} - Due: ${user.renewalDate}`;
         document.getElementById('due-text').textContent = dueText;
         document.getElementById('payment-due').style.display = 'block';
         document.getElementById('view-bill').addEventListener('click', () => {
-          const message = `Amount: Rs. ${calculateMonthlyBill(user)}\nRenewal Date: ${user.renewalDate}`;
+          const message = isPartiallyPaid
+            ? `Total Bill: Rs. ${monthlyBill}\nPaid: Rs. ${totalPaid}\nBalance: Rs. ${balance}\nRenewal Date: ${user.renewalDate}`
+            : `Amount: Rs. ${balance}\nRenewal Date: ${user.renewalDate}`;
           alert(message);
           const msg = `Hello Devine Water! I need assistance. Customer: ${user.name}`;
           window.open(`https://wa.me/923010209897?text=${encodeURIComponent(msg)}`, '_blank');

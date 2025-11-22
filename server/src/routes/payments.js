@@ -27,15 +27,59 @@ const createSchema = z.object({
   }),
 });
 
+// Price per bottle constant (should match frontend)
+const PRICE_PER_BOTTLE = 50;
+
 router.post('/', requireAuth, requireAdmin, validate(createSchema), async (req, res) => {
   const { customerId, amount, method } = req.validated.body;
+
   await withTransaction(async (client) => {
-    await client.query('INSERT INTO payments (customerId, amount, method, date) VALUES ($1, $2, $3, CURRENT_DATE)', [customerId, amount, method]);
-    const custResult = await client.query('SELECT renewalDate AS "renewalDate" FROM customers WHERE id=$1', [customerId]);
-    const cust = custResult.rows[0];
-    const nextRenewal = addMonth(cust.renewalDate || new Date().toISOString().split('T')[0]);
-    await client.query('UPDATE customers SET isPaid=1, monthlyConsumption=0, renewalDate=$1 WHERE id=$2', [nextRenewal, customerId]);
+    // 1. Insert the payment
+    await client.query(
+      'INSERT INTO payments (customerId, amount, method, date) VALUES ($1, $2, $3, CURRENT_DATE)',
+      [customerId, amount, method]
+    );
+
+    // 2. Get customer data
+    const custResult = await client.query(
+      'SELECT monthlyConsumption, renewalDate FROM customers WHERE id=$1',
+      [customerId]
+    );
+    const customer = custResult.rows[0];
+
+    // 3. Calculate monthly bill
+    const monthlyBill = customer.monthlyConsumption * PRICE_PER_BOTTLE;
+
+    // 4. Sum all payments since last renewal (current billing period)
+    const paymentsResult = await client.query(
+      `SELECT COALESCE(SUM(amount), 0) as total 
+       FROM payments 
+       WHERE customerId=$1 
+       AND date >= (SELECT renewalDate - INTERVAL '1 month' FROM customers WHERE id=$1)`,
+      [customerId]
+    );
+    const totalPaid = parseFloat(paymentsResult.rows[0].total);
+
+    // 5. Calculate balance
+    const balance = monthlyBill - totalPaid;
+
+    // 6. Update customer status
+    if (balance <= 0) {
+      // Fully paid - mark as paid and set next renewal
+      const nextRenewal = addMonth(customer.renewalDate || new Date().toISOString().split('T')[0]);
+      await client.query(
+        'UPDATE customers SET isPaid=1, monthlyConsumption=0, renewalDate=$1 WHERE id=$2',
+        [nextRenewal, customerId]
+      );
+    } else {
+      // Partial payment - mark as unpaid
+      await client.query(
+        'UPDATE customers SET isPaid=0 WHERE id=$1',
+        [customerId]
+      );
+    }
   });
+
   res.status(201).json({ ok: true });
 });
 
