@@ -138,6 +138,12 @@
     }
 
     document.getElementById('btn-add-payment').addEventListener('click', async () => {
+      // Check if there are any customers
+      if (!state.customers || state.customers.length === 0) {
+        await showAlert('No customers found. Please add customers first before recording payments.', 'No Customers');
+        return;
+      }
+
       const result = await showFormDialog('Add New Payment', [
         { name: 'customerId', label: 'Customer', type: 'select', required: true },
         { name: 'amount', label: 'Amount (Rs)', type: 'number', min: 0, step: '0.01', placeholder: 'Enter amount', required: true },

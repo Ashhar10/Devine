@@ -71,6 +71,12 @@
     }
 
     document.getElementById('btn-add-delivery').addEventListener('click', async () => {
+      // Check if there are any customers
+      if (!state.customers || state.customers.length === 0) {
+        await showAlert('No customers found. Please add customers first before recording deliveries.', 'No Customers');
+        return;
+      }
+
       const result = await showFormDialog('Add New Delivery', [
         { name: 'customerId', label: 'Customer', type: 'select', required: true },
         { name: 'quantity', label: 'Quantity (bottles)', type: 'number', min: 1, placeholder: 'Enter number of bottles', required: true }

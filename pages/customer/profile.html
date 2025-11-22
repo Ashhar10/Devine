@@ -58,50 +58,65 @@
 
   <script type="module">
     import { state, setCurrentUser, updateCustomer } from '../../assets/js/state.js';
-    import { showAlert } from '../../assets/js/ui.js';
-    if (!state.currentUser) { await showAlert('User not found. Please login again.', 'Error'); location.href = new URL('../login.html', window.location.href).href; }
-    const user = state.currentUser;
-    const fName = document.getElementById('f-name');
-    const fEmail = document.getElementById('f-email');
-    const fAddress = document.getElementById('f-address');
-    const fCity = document.getElementById('f-city');
-    const fLocation = document.getElementById('f-location');
-    const btnBack = document.getElementById('btn-back');
-    const btnSave = document.getElementById('btn-save');
-    const btnLocation = document.getElementById('btn-location');
+    import { initPage, showAlert } from '../../assets/js/ui.js';
 
-    function hydrate() {
-      fName.value = user.name || '';
-      fEmail.value = user.email || '';
-      fAddress.value = user.address || '';
-      fCity.value = user.city || '';
-      fLocation.value = user.currentLocation || '';
+    // Initialize page with auth check and wait for data to load
+    if (!await initPage({ requireAdmin: false })) {
+      // Redirect handled by initPage
+    } else {
+      // Now check if we have a current user
+      if (!state.currentUser) {
+        await showAlert('User not found. Please login again.', 'Error');
+        location.href = new URL('../login.html', window.location.href).href;
+      } else {
+        initProfile();
+      }
     }
-    hydrate();
 
-    btnBack.addEventListener('click', () => { location.href = new URL('./dashboard.html', window.location.href).href; });
-    btnSave.addEventListener('click', async () => {
-      if (!fName.value.trim() || !fAddress.value.trim() || !fCity.value.trim()) { await showAlert('Please fill in all required fields.', 'Validation Error'); return; }
-      const updated = { ...user, name: fName.value.trim(), email: fEmail.value.trim(), address: fAddress.value.trim(), city: fCity.value.trim(), currentLocation: fLocation.value.trim() };
-      setCurrentUser(updated);
-      await updateCustomer(updated);
-      await showAlert('Profile updated successfully', 'Success');
-      location.href = new URL('./dashboard.html', window.location.href).href;
-    });
-    btnLocation.addEventListener('click', () => {
-      if (!navigator.geolocation) { showAlert('Geolocation not supported', 'Error'); return; }
-      btnLocation.disabled = true; btnLocation.textContent = 'Loading...';
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        fLocation.value = `${latitude}, ${longitude}`;
-        btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
-        await showAlert('Location updated', 'Success');
-      }, async (err) => {
-        console.error(err);
-        btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
-        await showAlert('Unable to retrieve location', 'Error');
+    function initProfile() {
+      const user = state.currentUser;
+      const fName = document.getElementById('f-name');
+      const fEmail = document.getElementById('f-email');
+      const fAddress = document.getElementById('f-address');
+      const fCity = document.getElementById('f-city');
+      const fLocation = document.getElementById('f-location');
+      const btnBack = document.getElementById('btn-back');
+      const btnSave = document.getElementById('btn-save');
+      const btnLocation = document.getElementById('btn-location');
+
+      function hydrate() {
+        fName.value = user.name || '';
+        fEmail.value = user.email || '';
+        fAddress.value = user.address || '';
+        fCity.value = user.city || '';
+        fLocation.value = user.currentLocation || '';
+      }
+      hydrate();
+
+      btnBack.addEventListener('click', () => { location.href = new URL('./dashboard.html', window.location.href).href; });
+      btnSave.addEventListener('click', async () => {
+        if (!fName.value.trim() || !fAddress.value.trim() || !fCity.value.trim()) { await showAlert('Please fill in all required fields.', 'Validation Error'); return; }
+        const updated = { ...user, name: fName.value.trim(), email: fEmail.value.trim(), address: fAddress.value.trim(), city: fCity.value.trim(), currentLocation: fLocation.value.trim() };
+        setCurrentUser(updated);
+        await updateCustomer(updated);
+        await showAlert('Profile updated successfully', 'Success');
+        location.href = new URL('./dashboard.html', window.location.href).href;
       });
-    });
+      btnLocation.addEventListener('click', () => {
+        if (!navigator.geolocation) { showAlert('Geolocation not supported', 'Error'); return; }
+        btnLocation.disabled = true; btnLocation.textContent = 'Loading...';
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          fLocation.value = `${latitude}, ${longitude}`;
+          btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
+          await showAlert('Location updated', 'Success');
+        }, async (err) => {
+          console.error(err);
+          btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
+          await showAlert('Unable to retrieve location', 'Error');
+        });
+      });
+    }
   </script>
 </body>
 
