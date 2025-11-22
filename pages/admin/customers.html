@@ -90,10 +90,16 @@
   </main>
 
   <script type="module">
-    import { renderNavbar } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage } from '../../assets/js/ui.js';
     import { state, addCustomer, deleteCustomer } from '../../assets/js/state.js';
     import { checkRenewalStatus } from '../../assets/js/utils.js';
-    renderNavbar({ isAdmin: true });
+
+    // Initialize page with auth check
+    if (!await initPage({ requireAdmin: true })) {
+      // Redirect handled by initPage
+    } else {
+      renderCustomers();
+    }
 
     const tbody = document.getElementById('customers-tbody');
     const openAdd = document.getElementById('btn-open-add');

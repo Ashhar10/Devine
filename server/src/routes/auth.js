@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { pool } from '../db.js';
-import { signToken } from '../middleware/auth.js';
+import { signToken, requireAuth } from '../middleware/auth.js';
 import { z } from 'zod';
 import { validate } from '../middleware/validate.js';
 
@@ -64,6 +64,19 @@ router.post('/customer/login', validate(custSchema), async (req, res) => {
 
   const token = signToken({ id: c.id, role: 'customer' });
   res.json({ token, user: { id: c.id, name: c.name, phone: c.phone } });
+});
+
+router.get('/me', requireAuth, async (req, res) => {
+  const { id, role } = req.user;
+  if (role === 'admin') {
+    const result = await pool.query('SELECT id, username FROM admins WHERE id = $1', [id]);
+    if (!result.rows[0]) return res.status(404).json({ error: 'User not found' });
+    res.json({ user: result.rows[0], role: 'admin' });
+  } else {
+    const result = await pool.query('SELECT id, name, phone FROM customers WHERE id = $1', [id]);
+    if (!result.rows[0]) return res.status(404).json({ error: 'User not found' });
+    res.json({ user: result.rows[0], role: 'customer' });
+  }
 });
 
 export default router;

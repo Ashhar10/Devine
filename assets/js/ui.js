@@ -26,3 +26,46 @@ export function renderNavbar({ isAdmin = false }) {
 }
 
 export function linkTo(path) { window.location.href = new URL(path, window.location.href).href; }
+
+export async function initPage({ requireAdmin = false, requireCustomer = false } = {}) {
+  const { checkSession, state } = await import('./state.js');
+
+  // Show loading overlay if needed
+  const loading = document.createElement('div');
+  loading.id = 'page-loading';
+  loading.style.cssText = 'position:fixed;inset:0;background:white;z-index:9999;display:flex;justify-content:center;align-items:center;font-size:1.5rem;color:#0891b2;';
+  loading.innerText = 'Loading...';
+  document.body.appendChild(loading);
+
+  try {
+    await checkSession();
+
+    if (requireAdmin && state.userType !== 'admin') {
+      window.location.href = new URL('../../login.html', window.location.href).href;
+      return false;
+    }
+
+    if (requireCustomer && state.userType !== 'customer') {
+      window.location.href = new URL('../../login.html', window.location.href).href;
+      return false;
+    }
+
+    // If on login page but already logged in
+    if (!requireAdmin && !requireCustomer && state.userType) {
+      if (state.userType === 'admin') {
+        window.location.href = new URL('./pages/admin/dashboard.html', window.location.href).href;
+      } else {
+        window.location.href = new URL('./pages/customer/dashboard.html', window.location.href).href;
+      }
+      return false;
+    }
+
+    renderNavbar({ isAdmin: state.userType === 'admin' });
+    return true;
+  } catch (e) {
+    console.error('Init failed:', e);
+    return false;
+  } finally {
+    loading.remove();
+  }
+}
