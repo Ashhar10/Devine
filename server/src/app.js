@@ -51,10 +51,27 @@ app.use(morgan(config.env === 'production' ? 'combined' : 'dev'));
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin) return cb(null, true); // non-browser or same-origin
+      // Allow non-browser requests (like Postman or server-to-server)
+      if (!origin) return cb(null, true);
+
       const allowed = config.corsAllowedOrigins;
-      if (allowed.includes('*') || allowed.includes(origin)) return cb(null, true);
-      return cb(null, false);
+
+      // Log CORS attempts in development
+      if (config.env === 'development') {
+        console.log(`CORS Check: Origin=${origin} Allowed=${allowed.includes(origin)}`);
+      }
+
+      if (allowed.includes('*') || allowed.includes(origin)) {
+        return cb(null, true);
+      }
+
+      // In development, be permissive if not explicitly allowed but safe-ish
+      if (config.env === 'development') {
+        console.warn(`CORS Warning: Origin ${origin} not in allowed list, allowing anyway for dev.`);
+        return cb(null, true);
+      }
+
+      return cb(new Error('Not allowed by CORS'));
     },
     credentials: false,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -67,9 +84,11 @@ app.use(
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowed = config.corsAllowedOrigins;
-  if (!origin || allowed.includes('*') || allowed.includes(origin)) {
+
+  if (!origin || allowed.includes('*') || allowed.includes(origin) || config.env === 'development') {
     res.header('Access-Control-Allow-Origin', origin || '*');
   }
+
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();

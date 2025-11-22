@@ -1,5 +1,6 @@
 // Shared UI helpers: navbar rendering and simple navigation
 import { state, logout } from './state.js';
+export { showAlert, showConfirm } from './dialog.js';
 
 export function renderNavbar({ isAdmin = false }) {
   const el = document.getElementById('navbar');

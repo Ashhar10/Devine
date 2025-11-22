@@ -64,14 +64,15 @@
           console.log('Deliver button clicked');
           const id = Number(b.getAttribute('data-deliver'));
           console.log(`Processing order ${id}`);
-          if (confirm('Mark this order as delivered?')) {
+          const confirmed = await showConfirm('Mark this order as delivered?', 'Confirm Delivery');
+          if (confirmed) {
             try {
               await markOrderDelivered(id);
               renderOrders();
-              alert('Order marked as delivered');
+              await showAlert('Order marked as delivered successfully!', 'Success');
             } catch (err) {
               console.error(err);
-              alert(`Failed to mark delivered: ${err.message}`);
+              await showAlert(`Failed to mark delivered: ${err.message}`, 'Error');
             }
           }
         });
@@ -81,7 +82,7 @@
     document.getElementById('btn-add-order').addEventListener('click', async () => {
       const customerId = prompt('Enter Customer ID');
       const qty = prompt('Enter quantity');
-      if (!customerId || !qty || Number(qty) <= 0) { alert('Please enter valid values'); return; }
+      if (!customerId || !qty || Number(qty) <= 0) { await showAlert('Please enter valid values', 'Input Error'); return; }
       await placeOrder(Number(customerId), Number(qty));
       renderOrders();
       alert('Order added successfully');
