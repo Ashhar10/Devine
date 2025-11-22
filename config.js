@@ -5,5 +5,5 @@
 // Render primary URL from your dashboard:
 // e.g. https://devine-backend.onrender.com
 window.__CONFIG__ = {
-  API_BASE: 'http://localhost:5000/api'
+  API_BASE: 'http://localhost:3001/api'
 };
