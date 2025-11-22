@@ -234,6 +234,7 @@ export async function showFormDialog(title, fields, customers = []) {
 
     form.onsubmit = (e) => {
       e.preventDefault();
+      console.log('Form submitted');
 
       // Validate all fields
       let isValid = true;
@@ -243,10 +244,13 @@ export async function showFormDialog(title, fields, customers = []) {
         const input = formData[field.name];
         const value = input.value;
 
+        console.log(`Field ${field.name}: value="${value}", required=${field.required !== false}`);
+
         // Check required fields
         if (field.required !== false && !value) {
           isValid = false;
           input.style.borderColor = '#ef4444';
+          console.log(`Field ${field.name} is invalid (empty)`);
           return;
         } else {
           input.style.borderColor = '#d1d5db';
@@ -262,8 +266,12 @@ export async function showFormDialog(title, fields, customers = []) {
         }
       });
 
+      console.log('Validation result:', isValid, result);
+
       if (isValid) {
         close(result);
+      } else {
+        console.log('Form validation failed');
       }
     };
 
@@ -275,10 +283,13 @@ export async function showFormDialog(title, fields, customers = []) {
 
     requestAnimationFrame(() => {
       overlay.classList.add('visible');
-      formData[fields[0].name].focus();
+      if (formData[fields[0].name]) {
+        formData[fields[0].name].focus();
+      }
     });
 
     function close(result) {
+      console.log('Closing dialog with result:', result);
       overlay.classList.remove('visible');
       setTimeout(() => {
         overlay.remove();
