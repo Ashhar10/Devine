@@ -61,9 +61,14 @@
         b.addEventListener('click', async () => {
           const id = Number(b.getAttribute('data-deliver'));
           if (confirm('Mark this order as delivered?')) {
-            await markOrderDelivered(id);
-            renderOrders();
-            alert('Order marked as delivered');
+            try {
+              await markOrderDelivered(id);
+              renderOrders();
+              alert('Order marked as delivered');
+            } catch (err) {
+              console.error(err);
+              alert(`Failed to mark delivered: ${err.message}`);
+            }
           }
         });
       });
