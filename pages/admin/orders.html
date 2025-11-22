@@ -57,9 +57,13 @@
             </div>
           </div>
         `).join('');
-      Array.from(document.querySelectorAll('[data-deliver]')).forEach(b => {
+      const buttons = document.querySelectorAll('[data-deliver]');
+      console.log(`Found ${buttons.length} deliver buttons`);
+      Array.from(buttons).forEach(b => {
         b.addEventListener('click', async () => {
+          console.log('Deliver button clicked');
           const id = Number(b.getAttribute('data-deliver'));
+          console.log(`Processing order ${id}`);
           if (confirm('Mark this order as delivered?')) {
             try {
               await markOrderDelivered(id);

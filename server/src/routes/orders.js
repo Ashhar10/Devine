@@ -38,7 +38,7 @@ router.post('/', requireAuth, validate(createSchema), async (req, res) => {
   }
 
   const result = await pool.query(
-    "INSERT INTO orders (customerId, quantity, status, date, time) VALUES ($1, $2, $3, (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Karachi')::date, TO_CHAR(CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Karachi', 'HH12:MI AM')) RETURNING id",
+    "INSERT INTO orders (customerId, quantity, status, date, time) VALUES ($1, $2, $3, (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Karachi')::date, TO_CHAR(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Karachi', 'HH12:MI AM')) RETURNING id",
     [customerId, quantity, 'pending']
   );
   res.status(201).json({ id: result.rows[0].id });
@@ -58,13 +58,13 @@ router.put('/:id/delivered', requireAuth, async (req, res) => {
 
       // 2. Update order status
       await client.query(
-        "UPDATE orders SET status=$1, deliveredDate=(CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Karachi')::date WHERE id=$2",
+        "UPDATE orders SET status=$1, deliveredDate=(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Karachi')::date WHERE id=$2",
         ['delivered', id]
       );
 
       // 3. Create delivery record
       await client.query(
-        "INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES ($1, $2, $3, (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Karachi')::date, TO_CHAR(CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Karachi', 'HH12:MI AM'))",
+        "INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES ($1, $2, $3, (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Karachi')::date, TO_CHAR(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Karachi', 'HH12:MI AM'))",
         [order.customerId, order.quantity, order.quantity * 18.9]
       );
 
