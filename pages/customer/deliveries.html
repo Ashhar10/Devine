@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recent Deliveries - Devine Water</title>
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+    <link rel="stylesheet" href="../../assets/css/components.css" />
+    <script src="../../config.js"></script>
+</head>
+
+<body style="background: #F9FAFB;">
+    <!-- Navigation Tabs -->
+    <nav style="background: white; border-bottom: 1px solid #E5E7EB; padding: 0;">
+        <div class="container" style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 700; font-size: 18px; color: #111827;">Devine Water</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 14px; color: #6B7280;">Sunday, November 23 2025</span>
+                    <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <span id="user-name" style="font-size: 14px; font-weight: 500; color: #111827;"></span>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7-7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div id="nav-tabs" style="display: flex; gap: 32px; padding: 0 24px;">
+                <a href="./dashboard-new.html" class="nav-tab"
+                    style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #6B7280; border-bottom: 2px solid transparent; text-decoration: none;">Dashboard</a>
+                <a href="./consumption.html" class="nav-tab"
+                    style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #6B7280; border-bottom: 2px solid transparent; text-decoration: none;">Consumption</a>
+                <a href="./financial.html" class="nav-tab"
+                    style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #6B7280; border-bottom: 2px solid transparent; text-decoration: none;">Financial</a>
+                <a href="./deliveries.html" class="nav-tab active"
+                    style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #4F46E5; border-bottom: 2px solid #4F46E5; text-decoration: none;">Deliveries</a>
+                <a href="./calendar.html" class="nav-tab"
+                    style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #6B7280; border-bottom: 2px solid transparent; text-decoration: none;">Calendar</a>
+                <a href="./bottle-request.html" class="nav-tab"
+                    style="padding: 12px 0; font-size: 14px; font-weight: 500; color: #6B7280; border-bottom: 2px solid transparent; text-decoration: none;">Bottle
+                    Request</a>
+            </div>
+        </div>
+    </nav>
+
+    <main style="padding: 40px 24px;">
+        <div class="container" style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+                <h1 style="font-size: 28px; font-weight: 700; color: #111827;">Recent Deliveries</h1>
+                <button onclick="location.href='./dashboard-new.html'"
+                    style="background: #374151; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 500; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    BACK TO DASHBOARD
+                </button>
+            </div>
+
+            <!-- Metric Cards -->
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px;">
+                <!-- Total Deliveries -->
+                <div class="metric-card">
+                    <div class="metric-card-icon purple">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <div class="metric-card-value">40</div>
+                    <div class="metric-card-label">Total Deliveries</div>
+                    <a href="#" class="metric-card-link">All Time</a>
+                </div>
+
+                <!-- Delivered -->
+                <div class="metric-card">
+                    <div class="metric-card-icon green">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="metric-card-value">31</div>
+                    <div class="metric-card-label">Delivered</div>
+                    <a href="#" class="metric-card-link">Success Rate <span style="color: #10B981;">77.5%</span></a>
+                </div>
+
+                <!-- Scheduled -->
+                <div class="metric-card">
+                    <div class="metric-card-icon orange">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="metric-card-value">0</div>
+                    <div class="metric-card-label">Scheduled</div>
+                    <a href="#" class="metric-card-link">Upcoming</a>
+                </div>
+
+                <!-- Failed/Cancelled -->
+                <div class="metric-card">
+                    <div class="metric-card-icon red">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="metric-card-value">0</div>
+                    <div class="metric-card-label">Failed/Cancelled</div>
+                    <a href="#" class="metric-card-link">Issues</a>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-container">
+                <div class="filters-title">Filters</div>
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; align-items: end;">
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-select">
+                            <option>All Status</option>
+                            <option>Delivered</option>
+                            <option>Scheduled</option>
+                            <option>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Type</label>
+                        <select class="filter-select">
+                            <option>All Types</option>
+                            <option>Subscription</option>
+                            <option>On-Demand</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Start Date</label>
+                        <input type="date" class="filter-input" placeholder="mm/dd/yyyy">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">End Date</label>
+                        <input type="date" class="filter-input" placeholder="mm/dd/yyyy">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Sort By</label>
+                        <select class="filter-select">
+                            <option>Newest First</option>
+                            <option>Oldest First</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Show</label>
+                        <select class="filter-select">
+                            <option>10 entries</option>
+                            <option>25 entries</option>
+                            <option>50 entries</option>
+                        </select>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="filter-btn filter-btn-primary">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                style="display: inline; vertical-align: middle; margin-right: 4px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            FILTER
+                        </button>
+                        <button class="filter-btn filter-btn-secondary">RESET</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery History Table -->
+            <div class="data-table-container">
+                <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 20px;">Delivery History
+                </h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>TYPE</th>
+                            <th>BOTTLES</th>
+                            <th>EMPTY RETURNED</th>
+                            <th>STATUS</th>
+                            <th>AMOUNT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="delivery-history">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <div class="pagination-info">Showing 1 to 10 of 40 results</div>
+                    <div class="pagination-buttons">
+                        <button class="pagination-btn" disabled>‹</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">4</button>
+                        <button class="pagination-btn">›</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        // Mock delivery data
+        const deliveries = [
+            { date: 'Nov 22, 2025', day: 'Saturday', type: 'On-Demand', bottles: 2, returned: 2, status: 'delivered', amount: 160 },
+            { date: 'Nov 20, 2025', day: 'Thursday', type: 'Subscription', bottles: 2, returned: 2, status: 'delivered', amount: 160 },
+            { date: 'Nov 16, 2025', day: 'Sunday', type: 'On-Demand', bottles: 3, returned: 3, status: 'delivered', amount: 240 },
+            { date: 'Nov 14, 2025', day: 'Friday', type: 'Subscription', bottles: 2, returned: 2, status: 'delivered', amount: 160 },
+            { date: 'Nov 12, 2025', day: 'Wednesday', type: 'On-Demand', bottles: 3, returned: 2, status: 'delivered', amount: 160 },
+            { date: 'Nov 11, 2025', day: 'Tuesday', type: 'Subscription', bottles: 2, returned: 2, status: 'delivered', amount: 160 },
+            { date: 'Nov 08, 2025', day: 'Saturday', type: 'Subscription', bottles: 1, returned: 1, status: 'delivered', amount: 80 },
+            { date: 'Nov 07, 2025', day: 'Friday', type: 'On-Demand', bottles: 2, returned: 2, status: 'delivered', amount: 160 },
+            { date: 'Nov 03, 2025', day: 'Monday', type: 'Subscription', bottles: 2, returned: 2, status: 'delivered', amount: 160 },
+            { date: 'Nov 01, 2025', day: 'Saturday', type: 'On-Demand', bottles: 2, returned: 2, status: 'delivered', amount: 160 }
+        ];
+
+        function loadDeliveries() {
+            const tbody = document.getElementById('delivery-history');
+            tbody.innerHTML = deliveries.map(d => `
+        <tr>
+          <td>
+            <div style="font-weight: 500;">${d.date}</div>
+            <div style="font-size: 13px; color: #6B7280;">${d.day}</div>
+          </td>
+          <td>
+            <span class="badge-new ${d.type === 'Subscription' ? 'badge-subscription' : 'badge-scheduled'}">
+              ${d.type === 'Subscription' ? '● Subscription' : '● On-Demand'}
+            </span>
+          </td>
+          <td>${d.bottles} bottles</td>
+          <td>${d.returned}</td>
+          <td><span class="badge-new badge-delivered">Delivered</span></td>
+          <td style="font-weight: 600;">PKR ${d.amount}</td>
+        </tr>
+      `).join('');
+        }
+
+        loadDeliveries();
+    </script>
+</body>
+
+</html>
