@@ -43,10 +43,52 @@ export function logout() {
   // Robust relative navigation that works from any nested page
   window.location.href = new URL('../login.html', window.location.href).href;
 }
+
 // Auth
 export async function loginAdmin(username, password) {
   const res = await request('POST', '/auth/admin/login', { username, password });
-  request('GET', '/orders'),
+  setToken(res.token);
+  state.userType = 'admin';
+  await syncAll();
+  return res.user;
+}
+
+export async function loginCustomer(phone, password) {
+  const res = await request('POST', '/auth/customer/login', { phone, password });
+  setToken(res.token);
+  state.userType = 'customer';
+  state.currentUser = res.user;
+  await syncCustomer();
+  return res.user;
+}
+
+export async function checkSession() {
+  const token = getToken();
+  if (!token) return null;
+
+  try {
+    const res = await request('GET', '/auth/me');
+    state.userType = res.role;
+    state.currentUser = res.user;
+
+    if (res.role === 'admin') {
+      await syncAll();
+    } else {
+      await syncCustomer();
+    }
+    return res.user;
+  } catch (e) {
+    console.error('Session check failed:', e);
+    clearToken();
+    return null;
+  }
+}
+
+// Sync helpers
+export async function syncAll() {
+  const [customers, orders, deliveries, payments] = await Promise.all([
+    request('GET', '/customers'),
+    request('GET', '/orders'),
     request('GET', '/deliveries'),
     request('GET', '/payments'),
   ]);
