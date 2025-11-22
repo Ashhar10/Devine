@@ -43,10 +43,9 @@
         </div>
       </div>
 
-      <div class="grid grid-3 gap-6 mb-8">
+      <div class="grid grid-2 gap-6 mb-8">
         <button id="btn-order" class="btn btn-primary p-10 dashboard-card">Place Order</button>
         <button id="btn-contact" class="btn btn-green p-10 dashboard-card">Contact Us</button>
-        <button id="btn-profile" class="btn btn-secondary p-10 dashboard-card">Edit Profile</button>
       </div>
 
       <div class="card p-6 mb-6">
@@ -126,7 +125,6 @@
         const msg = `Hello Devine Water! I need assistance. Customer: ${user.name}`;
         window.open(`https://wa.me/923010209897?text=${encodeURIComponent(msg)}`, '_blank');
       });
-      document.getElementById('btn-profile').addEventListener('click', () => { location.href = new URL('./profile.html', window.location.href).href; });
       document.getElementById('order-close').addEventListener('click', () => { document.getElementById('order-overlay').classList.add('hidden'); });
       document.getElementById('order-qty').addEventListener('input', updateTotal);
       function updateTotal() { const qty = Number(document.getElementById('order-qty').value || 1); document.getElementById('order-total').textContent = `Rs. ${qty * PRICE_PER_BOTTLE}`; }

@@ -90,8 +90,8 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage, showAlert, showConfirm } from '../../assets/js/ui.js';
-    import { state, addCustomer, deleteCustomer } from '../../assets/js/state.js';
+    import { renderNavbar, initPage, showAlert, showConfirm, showFormDialog } from '../../assets/js/ui.js';
+    import { state, addCustomer, deleteCustomer, updateCustomer } from '../../assets/js/state.js';
     import { checkRenewalStatus } from '../../assets/js/utils.js';
 
     const tbody = document.getElementById('customers-tbody');
@@ -129,11 +129,37 @@
             <td>
               <div class="flex gap-3">
                 <button class="btn btn-secondary" onclick="location.href='./customer-detail.html?id=${c.id}'">View</button>
+                <button class="btn btn-primary" data-edit="${c.id}">Edit</button>
                 <button class="btn btn-danger" data-del="${c.id}">Delete</button>
               </div>
             </td>
           </tr>
         `).join('');
+      Array.from(document.querySelectorAll('[data-edit]')).forEach(b => {
+        b.addEventListener('click', async () => {
+          const id = Number(b.getAttribute('data-edit'));
+          const customer = state.customers.find(c => c.id === id);
+
+          const result = await showFormDialog(`Edit Customer: ${customer.name}`, [
+            { name: 'name', label: 'Full Name', type: 'text', placeholder: 'Enter full name', required: true, value: customer.name },
+            { name: 'phone', label: 'Phone', type: 'tel', placeholder: '03XX-XXXXXXX', required: true, value: customer.phone },
+            { name: 'email', label: 'Email', type: 'email', placeholder: 'example@email.com', value: customer.email || '' },
+            { name: 'address', label: 'Address', type: 'textarea', placeholder: 'Enter address', required: true, value: customer.address },
+            { name: 'city', label: 'City', type: 'text', placeholder: 'Enter city', value: customer.city || '' }
+          ]);
+
+          if (result) {
+            try {
+              const updated = { ...customer, ...result };
+              await updateCustomer(updated);
+              renderCustomers();
+              await showAlert('Customer updated successfully!', 'Success');
+            } catch (err) {
+              await showAlert(`Failed to update customer: ${err.message}`, 'Error');
+            }
+          }
+        });
+      });
       Array.from(document.querySelectorAll('[data-del]')).forEach(b => {
         b.addEventListener('click', async () => {
           const id = Number(b.getAttribute('data-del'));
