@@ -81,6 +81,11 @@
   <script type="module">
     import { loginAdmin, loginCustomer } from '../assets/js/state.js';
     import { showAlert } from '../assets/js/ui.js';
+    import { initInteractions } from '../assets/js/animations.js';
+
+    // Initialize animations and loader
+    initInteractions();
+
     const tabAdmin = document.getElementById('tab-admin');
     const tabCustomer = document.getElementById('tab-customer');
     const labelUsername = document.getElementById('label-username');
