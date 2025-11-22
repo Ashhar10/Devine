@@ -46,17 +46,39 @@ router.post('/', requireAuth, validate(createSchema), async (req, res) => {
 
 router.put('/:id/delivered', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
-  await withTransaction(async (client) => {
-    const orderResult = await client.query('SELECT * FROM orders WHERE id=$1', [id]);
-    const order = orderResult.rows[0];
-    if (!order) throw Object.assign(new Error('Order not found'), { status: 404 });
-    await client.query('UPDATE orders SET status=$1, deliveredDate=CURRENT_DATE WHERE id=$2', ['delivered', id]);
-    await client.query(
-      'INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES ($1, $2, $3, CURRENT_DATE, TO_CHAR(NOW(), \'HH12:MI AM\'))',
-      [order.customerid, order.quantity, order.quantity * 18.9]
-    );
-  });
-  res.json({ ok: true });
+  try {
+    await withTransaction(async (client) => {
+      // 1. Get order details
+      const orderResult = await client.query(
+        'SELECT id, customerId AS "customerId", quantity FROM orders WHERE id=$1',
+        [id]
+      );
+      const order = orderResult.rows[0];
+      if (!order) throw Object.assign(new Error('Order not found'), { status: 404 });
+
+      // 2. Update order status
+      await client.query(
+        'UPDATE orders SET status=$1, deliveredDate=CURRENT_DATE WHERE id=$2',
+        ['delivered', id]
+      );
+
+      // 3. Create delivery record
+      await client.query(
+        'INSERT INTO deliveries (customerId, quantity, liters, date, time) VALUES ($1, $2, $3, CURRENT_DATE, TO_CHAR(NOW(), \'HH12:MI AM\'))',
+        [order.customerId, order.quantity, order.quantity * 18.9]
+      );
+
+      // 4. Update customer stats
+      await client.query(
+        'UPDATE customers SET totalBottles = totalBottles + $1, monthlyConsumption = monthlyConsumption + $1 WHERE id = $2',
+        [order.quantity, order.customerId]
+      );
+    });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error marking order as delivered:', error);
+    res.status(error.status || 500).json({ error: error.message });
+  }
 });
 
 export default router;
