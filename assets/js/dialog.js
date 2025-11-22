@@ -76,61 +76,189 @@ styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
 function createDialog(title, message, type = 'alert') {
-    return new Promise((resolve) => {
-        const overlay = document.createElement('div');
-        overlay.className = 'dialog-overlay';
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dialog-overlay';
 
-        const box = document.createElement('div');
-        box.className = 'dialog-box';
+    const box = document.createElement('div');
+    box.className = 'dialog-box';
 
-        const titleEl = document.createElement('h3');
-        titleEl.className = 'dialog-title';
-        titleEl.textContent = title;
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'dialog-title';
+    titleEl.textContent = title;
 
-        const msgEl = document.createElement('p');
-        msgEl.className = 'dialog-message';
-        msgEl.textContent = message;
+    const msgEl = document.createElement('p');
+    msgEl.className = 'dialog-message';
+    msgEl.textContent = message;
 
-        const actions = document.createElement('div');
-        actions.className = 'dialog-actions';
+    const actions = document.createElement('div');
+    actions.className = 'dialog-actions';
 
-        if (type === 'confirm') {
-            const cancelBtn = document.createElement('button');
-            cancelBtn.className = 'dialog-btn dialog-btn-secondary';
-            cancelBtn.textContent = 'Cancel';
-            cancelBtn.onclick = () => close(false);
-            actions.appendChild(cancelBtn);
-        }
+    if (type === 'confirm') {
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'dialog-btn dialog-btn-secondary';
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.onclick = () => close(false);
+      actions.appendChild(cancelBtn);
+    }
 
-        const okBtn = document.createElement('button');
-        okBtn.className = 'dialog-btn dialog-btn-primary';
-        okBtn.textContent = 'OK';
-        okBtn.onclick = () => close(true);
-        actions.appendChild(okBtn);
+    const okBtn = document.createElement('button');
+    okBtn.className = 'dialog-btn dialog-btn-primary';
+    okBtn.textContent = 'OK';
+    okBtn.onclick = () => close(true);
+    actions.appendChild(okBtn);
 
-        box.appendChild(titleEl);
-        box.appendChild(msgEl);
-        box.appendChild(actions);
-        overlay.appendChild(box);
-        document.body.appendChild(overlay);
+    box.appendChild(titleEl);
+    box.appendChild(msgEl);
+    box.appendChild(actions);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
 
-        // Animation
-        requestAnimationFrame(() => overlay.classList.add('visible'));
+    // Animation
+    requestAnimationFrame(() => overlay.classList.add('visible'));
 
-        function close(result) {
-            overlay.classList.remove('visible');
-            setTimeout(() => {
-                overlay.remove();
-                resolve(result);
-            }, 200);
-        }
-    });
+    function close(result) {
+      overlay.classList.remove('visible');
+      setTimeout(() => {
+        overlay.remove();
+        resolve(result);
+      }, 200);
+    }
+  });
 }
 
 export async function showAlert(message, title = 'Alert') {
-    return createDialog(title, message, 'alert');
+  return createDialog(title, message, 'alert');
 }
 
 export async function showConfirm(message, title = 'Confirm') {
-    return createDialog(title, message, 'confirm');
+  return createDialog(title, message, 'confirm');
+}
+
+// Custom Form Dialog for inputs
+export async function showFormDialog(title, fields, customers = []) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dialog-overlay';
+
+    const box = document.createElement('div');
+    box.className = 'dialog-box';
+    box.style.maxWidth = '500px';
+
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'dialog-title';
+    titleEl.textContent = title;
+
+    const form = document.createElement('form');
+    form.style.marginBottom = '1.5rem';
+
+    const formData = {};
+
+    fields.forEach(field => {
+      const fieldDiv = document.createElement('div');
+      fieldDiv.style.marginBottom = '1rem';
+
+      const label = document.createElement('label');
+      label.textContent = field.label;
+      label.style.display = 'block';
+      label.style.marginBottom = '0.5rem';
+      label.style.fontWeight = '500';
+      label.style.color = '#374151';
+
+      let input;
+      if (field.type === 'select' && field.name === 'customerId') {
+        input = document.createElement('select');
+        input.className = 'dialog-input';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '-- Select Customer --';
+        input.appendChild(placeholder);
+
+        customers.forEach(c => {
+          const option = document.createElement('option');
+          option.value = c.id;
+          option.textContent = `${c.name} (${c.phone})`;
+          input.appendChild(option);
+        });
+      } else if (field.type === 'select') {
+        input = document.createElement('select');
+        input.className = 'dialog-input';
+
+        field.options.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.textContent = opt;
+          input.appendChild(option);
+        });
+      } else {
+        input = document.createElement('input');
+        input.type = field.type || 'text';
+        input.className = 'dialog-input';
+        if (field.placeholder) input.placeholder = field.placeholder;
+        if (field.min !== undefined) input.min = field.min;
+        if (field.step) input.step = field.step;
+      }
+
+      input.name = field.name;
+      input.required = field.required !== false;
+      input.style.width = '100%';
+      input.style.padding = '0.5rem';
+      input.style.border = '1px solid #d1d5db';
+      input.style.borderRadius = '0.375rem';
+      input.style.fontSize = '1rem';
+
+      formData[field.name] = input;
+
+      fieldDiv.appendChild(label);
+      fieldDiv.appendChild(input);
+      form.appendChild(fieldDiv);
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'dialog-actions';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'dialog-btn dialog-btn-secondary';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = () => close(null);
+
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.className = 'dialog-btn dialog-btn-primary';
+    submitBtn.textContent = 'Submit';
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(submitBtn);
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const result = {};
+      fields.forEach(field => {
+        const value = formData[field.name].value;
+        result[field.name] = field.type === 'number' ? Number(value) : value;
+      });
+      close(result);
+    };
+
+    box.appendChild(titleEl);
+    box.appendChild(form);
+    box.appendChild(actions);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+      overlay.classList.add('visible');
+      formData[fields[0].name].focus();
+    });
+
+    function close(result) {
+      overlay.classList.remove('visible');
+      setTimeout(() => {
+        overlay.remove();
+        resolve(result);
+      }, 200);
+    }
+  });
 }

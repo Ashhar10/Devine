@@ -28,7 +28,7 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage, showAlert, showConfirm } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage, showAlert, showConfirm, showFormDialog } from '../../assets/js/ui.js';
     import { state, placeOrder, markOrderDelivered } from '../../assets/js/state.js';
 
     const list = document.getElementById('orders-list');
@@ -80,12 +80,20 @@
     }
 
     document.getElementById('btn-add-order').addEventListener('click', async () => {
-      const customerId = prompt('Enter Customer ID');
-      const qty = prompt('Enter quantity');
-      if (!customerId || !qty || Number(qty) <= 0) { await showAlert('Please enter valid values', 'Input Error'); return; }
-      await placeOrder(Number(customerId), Number(qty));
-      renderOrders();
-      alert('Order added successfully');
+      const result = await showFormDialog('Add New Order', [
+        { name: 'customerId', label: 'Customer', type: 'select', required: true },
+        { name: 'quantity', label: 'Quantity (bottles)', type: 'number', min: 1, placeholder: 'Enter number of bottles', required: true }
+      ], state.customers);
+
+      if (result) {
+        try {
+          await placeOrder(result.customerId, result.quantity);
+          renderOrders();
+          await showAlert('Order added successfully!', 'Success');
+        } catch (err) {
+          await showAlert(`Failed to add order: ${err.message}`, 'Error');
+        }
+      }
     });
   </script>
 </body>

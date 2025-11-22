@@ -41,7 +41,7 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage, showAlert, showFormDialog } from '../../assets/js/ui.js';
     import { state, addDelivery, getCustomerName } from '../../assets/js/state.js';
     import { PRICE_PER_BOTTLE } from '../../assets/js/utils.js';
 
@@ -71,12 +71,20 @@
     }
 
     document.getElementById('btn-add-delivery').addEventListener('click', async () => {
-      const customerId = prompt('Enter Customer ID');
-      const qty = prompt('Enter bottles quantity');
-      if (!customerId || !qty || Number(qty) <= 0) { alert('Please enter valid values'); return; }
-      await addDelivery(Number(customerId), Number(qty));
-      renderDeliveries();
-      alert('Delivery added successfully');
+      const result = await showFormDialog('Add New Delivery', [
+        { name: 'customerId', label: 'Customer', type: 'select', required: true },
+        { name: 'quantity', label: 'Quantity (bottles)', type: 'number', min: 1, placeholder: 'Enter number of bottles', required: true }
+      ], state.customers);
+
+      if (result) {
+        try {
+          await addDelivery(result.customerId, result.quantity);
+          renderDeliveries();
+          await showAlert('Delivery added successfully!', 'Success');
+        } catch (err) {
+          await showAlert(`Failed to add delivery: ${err.message}`, 'Error');
+        }
+      }
     });
   </script>
 </body>

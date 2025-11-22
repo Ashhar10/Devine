@@ -39,7 +39,7 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage, showAlert, showConfirm, showFormDialog } from '../../assets/js/ui.js';
     import { state, recordPayment } from '../../assets/js/state.js';
     import { calculateMonthlyBill, checkRenewalStatus } from '../../assets/js/utils.js';
 
@@ -77,7 +77,7 @@
           const id = Number(b.getAttribute('data-wa'));
           const c = state.customers.find(x => x.id === id);
           const msg = `Dear ${c.name}, your payment of Rs. ${calculateMonthlyBill(c)} is due. Renewal: ${c.renewalDate}. Thank you! - Devine Water`;
-          const url = `https://wa.me/${c.phone.replace(/[-\s]/g, '')}?text=${encodeURIComponent(msg)}`;
+          const url = `https://wa.me/${c.phone.replace(/[-\\s]/g, '')}?text=${encodeURIComponent(msg)}`;
           window.open(url, '_blank');
         });
       });
@@ -85,11 +85,16 @@
         b.addEventListener('click', async () => {
           const id = Number(b.getAttribute('data-paid'));
           const c = state.customers.find(x => x.id === id);
-          if (confirm(`Confirm payment Rs. ${calculateMonthlyBill(c)} for ${c.name}?`)) {
-            await recordPayment(id, calculateMonthlyBill(c), 'Cash');
-            alert('Payment recorded');
-            renderPayments();
-            renderUnpaid();
+          const confirmed = await showConfirm(`Confirm payment Rs. ${calculateMonthlyBill(c)} for ${c.name}?`, 'Confirm Payment');
+          if (confirmed) {
+            try {
+              await recordPayment(id, calculateMonthlyBill(c), 'Cash');
+              await showAlert('Payment recorded successfully!', 'Success');
+              renderPayments();
+              renderUnpaid();
+            } catch (err) {
+              await showAlert(`Failed to record payment: ${err.message}`, 'Error');
+            }
           }
         });
       });
@@ -111,13 +116,22 @@
     }
 
     document.getElementById('btn-add-payment').addEventListener('click', async () => {
-      const cid = prompt('Customer ID');
-      const amount = prompt('Amount (Rs)');
-      const method = prompt('Method (Cash/Online/Bank Transfer)', 'Cash');
-      if (!cid || !amount) { alert('Please fill all fields'); return; }
-      await recordPayment(Number(cid), Number(amount), method || 'Cash');
-      renderPayments();
-      alert('Payment added');
+      const result = await showFormDialog('Add New Payment', [
+        { name: 'customerId', label: 'Customer', type: 'select', required: true },
+        { name: 'amount', label: 'Amount (Rs)', type: 'number', min: 0, step: '0.01', placeholder: 'Enter amount', required: true },
+        { name: 'method', label: 'Payment Method', type: 'select', options: ['Cash', 'Online', 'Bank Transfer'], required: true }
+      ], state.customers);
+
+      if (result) {
+        try {
+          await recordPayment(result.customerId, result.amount, result.method);
+          renderPayments();
+          renderUnpaid();
+          await showAlert('Payment added successfully!', 'Success');
+        } catch (err) {
+          await showAlert(`Failed to add payment: ${err.message}`, 'Error');
+        }
+      }
     });
   </script>
 </body>
