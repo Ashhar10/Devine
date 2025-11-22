@@ -39,9 +39,9 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage, showAlert, showConfirm, showFormDialog } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage, showAlert, showConfirm, showFormDialog, showMessagingOptions } from '../../assets/js/ui.js';
     import { state, recordPayment } from '../../assets/js/state.js';
-    import { calculateMonthlyBill, calculateBalance, checkRenewalStatus } from '../../assets/js/utils.js';
+    import { calculateMonthlyBill, calculateBalance, checkRenewalStatus, normalizePhoneNumber } from '../../assets/js/utils.js';
 
     const unpaidList = document.getElementById('unpaid-list');
     const paymentsList = document.getElementById('payments-list');
@@ -84,13 +84,22 @@
         `;
       }).join('');
       Array.from(document.querySelectorAll('[data-wa]')).forEach(b => {
-        b.addEventListener('click', () => {
+        b.addEventListener('click', async () => {
           const id = Number(b.getAttribute('data-wa'));
           const c = state.customers.find(x => x.id === id);
           const balance = calculateBalance(c, state.payments);
           const msg = `Dear ${c.name}, your payment of Rs. ${balance} is due. Renewal: ${c.renewalDate}. Thank you! - Devine Water`;
-          const url = `https://wa.me/${c.phone.replace(/[-\\s]/g, '')}?text=${encodeURIComponent(msg)}`;
-          window.open(url, '_blank');
+
+          const choice = await showMessagingOptions(c.name, c.phone, msg);
+          if (choice === 'whatsapp') {
+            const phone = normalizePhoneNumber(c.phone, true);
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+          } else if (choice === 'sms') {
+            const phone = normalizePhoneNumber(c.phone, false);
+            const url = `sms:${phone}?body=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+          }
         });
       });
       Array.from(document.querySelectorAll('[data-paid]')).forEach(b => {

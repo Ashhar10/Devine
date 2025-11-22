@@ -41,3 +41,28 @@ export function calculateRenewalDate(joinDate) {
   renewal.setMonth(renewal.getMonth() + 1);
   return renewal.toISOString().split('T')[0];
 }
+
+export function normalizePhoneNumber(phone, forWhatsApp = false) {
+  if (!phone) return '';
+
+  // Remove spaces, hyphens, parentheses, and other formatting
+  let cleaned = phone.replace(/[\s\-()]/g, '');
+
+  // Handle Pakistani numbers
+  if (cleaned.startsWith('03')) {
+    // Local format: 03XXXXXXXXX → +923XXXXXXXXX
+    cleaned = '+92' + cleaned.substring(1);
+  } else if (cleaned.startsWith('923')) {
+    // Missing +: 923XXXXXXXXX → +923XXXXXXXXX
+    cleaned = '+' + cleaned;
+  } else if (cleaned.startsWith('92') && !cleaned.startsWith('+')) {
+    // Country code without +: 92XXXXXXXXX → +92XXXXXXXXX
+    cleaned = '+' + cleaned;
+  } else if (!cleaned.startsWith('+') && cleaned.length >= 10) {
+    // Assume Pakistani if no country code and reasonable length
+    cleaned = '+92' + cleaned;
+  }
+
+  // For WhatsApp, remove the + sign
+  return forWhatsApp ? cleaned.replace('+', '') : cleaned;
+}

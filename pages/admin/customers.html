@@ -90,7 +90,7 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage, showAlert, showConfirm } from '../../assets/js/ui.js';
     import { state, addCustomer, deleteCustomer } from '../../assets/js/state.js';
     import { checkRenewalStatus } from '../../assets/js/utils.js';
 
@@ -137,10 +137,11 @@
       Array.from(document.querySelectorAll('[data-del]')).forEach(b => {
         b.addEventListener('click', async () => {
           const id = Number(b.getAttribute('data-del'));
-          if (confirm('This customer will be deleted permanently. Continue?')) {
+          const confirmed = await showConfirm('This customer will be deleted permanently. Continue?', 'Delete Customer');
+          if (confirmed) {
             await deleteCustomer(id);
             renderCustomers();
-            alert('Customer deleted successfully');
+            await showAlert('Customer deleted successfully', 'Success');
           }
         });
       });

@@ -301,3 +301,82 @@ export async function showFormDialog(title, fields, customers = []) {
     }
   });
 }
+
+// Messaging Options Dialog (SMS vs WhatsApp)
+export async function showMessagingOptions(customerName, phone, message) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dialog-overlay';
+
+    const box = document.createElement('div');
+    box.className = 'dialog-box';
+    box.style.maxWidth = '450px';
+
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'dialog-title';
+    titleEl.textContent = `Send Reminder to ${customerName}`;
+
+    const msgEl = document.createElement('p');
+    msgEl.className = 'dialog-message';
+    msgEl.textContent = 'Choose how to send the payment reminder:';
+    msgEl.style.marginBottom = '1rem';
+
+    const phoneInfo = document.createElement('p');
+    phoneInfo.style.fontSize = '0.875rem';
+    phoneInfo.style.color = '#6b7280';
+    phoneInfo.style.marginBottom = '1.5rem';
+    phoneInfo.textContent = `Phone: ${phone}`;
+
+    const actions = document.createElement('div');
+    actions.style.display = 'flex';
+    actions.style.flexDirection = 'column';
+    actions.style.gap = '0.75rem';
+
+    const whatsappBtn = document.createElement('button');
+    whatsappBtn.className = 'dialog-btn dialog-btn-primary';
+    whatsappBtn.style.width = '100%';
+    whatsappBtn.style.display = 'flex';
+    whatsappBtn.style.alignItems = 'center';
+    whatsappBtn.style.justifyContent = 'center';
+    whatsappBtn.style.gap = '0.5rem';
+    whatsappBtn.innerHTML = '📱 Send via WhatsApp';
+    whatsappBtn.onclick = () => close('whatsapp');
+
+    const smsBtn = document.createElement('button');
+    smsBtn.className = 'dialog-btn dialog-btn-secondary';
+    smsBtn.style.width = '100%';
+    smsBtn.style.display = 'flex';
+    smsBtn.style.alignItems = 'center';
+    smsBtn.style.justifyContent = 'center';
+    smsBtn.style.gap = '0.5rem';
+    smsBtn.innerHTML = '💬 Send via SMS';
+    smsBtn.onclick = () => close('sms');
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'dialog-btn dialog-btn-secondary';
+    cancelBtn.style.width = '100%';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = () => close(null);
+
+    actions.appendChild(whatsappBtn);
+    actions.appendChild(smsBtn);
+    actions.appendChild(cancelBtn);
+
+    box.appendChild(titleEl);
+    box.appendChild(msgEl);
+    box.appendChild(phoneInfo);
+    box.appendChild(actions);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => overlay.classList.add('visible'));
+
+    function close(choice) {
+      overlay.classList.remove('visible');
+      setTimeout(() => {
+        overlay.remove();
+        resolve(choice);
+      }, 200);
+    }
+  });
+}
