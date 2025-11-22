@@ -83,7 +83,7 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage, showAlert } from '../../assets/js/ui.js';
     import { state, placeOrder } from '../../assets/js/state.js';
     import { calculateMonthlyBill, calculateBalance, checkRenewalStatus, PRICE_PER_BOTTLE } from '../../assets/js/utils.js';
 
@@ -110,11 +110,11 @@
           : `Rs. ${balance} - Due: ${user.renewalDate}`;
         document.getElementById('due-text').textContent = dueText;
         document.getElementById('payment-due').style.display = 'block';
-        document.getElementById('view-bill').addEventListener('click', () => {
+        document.getElementById('view-bill').addEventListener('click', async () => {
           const message = isPartiallyPaid
             ? `Total Bill: Rs. ${monthlyBill}\nPaid: Rs. ${totalPaid}\nBalance: Rs. ${balance}\nRenewal Date: ${user.renewalDate}`
             : `Amount: Rs. ${balance}\nRenewal Date: ${user.renewalDate}`;
-          alert(message);
+          await showAlert(message, 'Bill Details');
           const msg = `Hello Devine Water! I need assistance. Customer: ${user.name}`;
           window.open(`https://wa.me/923010209897?text=${encodeURIComponent(msg)}`, '_blank');
         });
@@ -132,10 +132,10 @@
       function updateTotal() { const qty = Number(document.getElementById('order-qty').value || 1); document.getElementById('order-total').textContent = `Rs. ${qty * PRICE_PER_BOTTLE}`; }
       document.getElementById('order-confirm').addEventListener('click', async () => {
         const qty = Number(document.getElementById('order-qty').value || 1);
-        if (qty < 1) { alert('Please enter a valid quantity'); return; }
+        if (qty < 1) { await showAlert('Please enter a valid quantity', 'Validation Error'); return; }
         await placeOrder(user.id, qty);
         document.getElementById('order-overlay').classList.add('hidden');
-        alert('Order placed successfully');
+        await showAlert('Order placed successfully', 'Success');
         renderOrders();
       });
 

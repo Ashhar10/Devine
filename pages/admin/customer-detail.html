@@ -65,7 +65,7 @@
   </main>
 
   <script type="module">
-    import { renderNavbar, initPage, showMessagingOptions } from '../../assets/js/ui.js';
+    import { renderNavbar, initPage, showMessagingOptions, showAlert } from '../../assets/js/ui.js';
     import { state, updateCustomer, addDelivery, recordPayment } from '../../assets/js/state.js';
     import { calculateMonthlyBill, calculateBalance, normalizePhoneNumber } from '../../assets/js/utils.js';
 
@@ -79,7 +79,7 @@
       // Now that data is loaded, find the customer
       let customer = state.customers.find(c => c.id === id);
       if (!customer) {
-        alert('Customer not found');
+        await showAlert('Customer not found', 'Error');
         location.href = new URL('./customers.html', window.location.href).href;
       } else {
         renderPage();
@@ -171,17 +171,17 @@
         const balance = calculateBalance(customer, state.payments);
         await recordPayment(customer.id, balance, 'Cash');
         customer = state.customers.find(c => c.id === id) || customer;
-        alert('Payment recorded');
+        await showAlert('Payment recorded', 'Success');
         renderHeader();
         renderHistory();
       });
 
       document.getElementById('btn-add-delivery').addEventListener('click', async () => {
         const qty = Number(document.getElementById('delivery-qty').value || 1);
-        if (qty < 1) { alert('Please enter a valid quantity'); return; }
+        if (qty < 1) { await showAlert('Please enter a valid quantity', 'Validation Error'); return; }
         await addDelivery(customer.id, qty);
         customer = state.customers.find(c => c.id === id);
-        alert('Delivery recorded');
+        await showAlert('Delivery recorded', 'Success');
         renderHeader();
         renderHistory();
       });

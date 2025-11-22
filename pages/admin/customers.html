@@ -159,11 +159,11 @@
       const address = document.getElementById('add-address').value.trim();
       const city = document.getElementById('add-city').value.trim();
       const joinDate = document.getElementById('add-join').value || new Date().toISOString().split('T')[0];
-      if (!name || !phone || !password || !address) { alert('Please fill required fields'); return; }
+      if (!name || !phone || !password || !address) { await showAlert('Please fill required fields', 'Validation Error'); return; }
       await addCustomer({ name, phone, password, address, city, email, joinDate });
       addModal.classList.add('hidden');
       renderCustomers();
-      alert('Customer added successfully');
+      await showAlert('Customer added successfully', 'Success');
     });
   </script>
 </body>

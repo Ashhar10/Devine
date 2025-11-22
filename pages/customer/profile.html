@@ -1,99 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Edit Profile</title>
-    <link rel="stylesheet" href="../../assets/css/base.css" />
-    <link rel="stylesheet" href="../../assets/css/customer.css" />
-    <script src="../../config.js"></script>
-  </head>
-  <body>
-    <main class="min-h-screen bg-gray-50 customer-dashboard-container">
-      <div class="container py-8" style="max-width:720px;">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-3xl font-bold text-cyan-600">Edit Profile</h2>
-          <button id="btn-back" class="text-gray-600">✕</button>
-        </div>
-        <div class="card p-8 profile-form">
-          <div class="space-y-6">
-            <div>
-              <label class="block text-sm font-semibold mb-2">Full Name</label>
-              <input type="text" id="f-name" class="border-2 border-gray-200 rounded-xl px-4 py-3" placeholder="Enter your full name" />
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="../../assets/css/base.css" />
+  <link rel="stylesheet" href="../../assets/css/customer.css" />
+  <script src="../../config.js"></script>
+</head>
+
+<body>
+  <main class="min-h-screen bg-gray-50 customer-dashboard-container">
+    <div class="container py-8" style="max-width:720px;">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold text-cyan-600">Edit Profile</h2>
+        <button id="btn-back" class="text-gray-600">✕</button>
+      </div>
+      <div class="card p-8 profile-form">
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Full Name</label>
+            <input type="text" id="f-name" class="border-2 border-gray-200 rounded-xl px-4 py-3"
+              placeholder="Enter your full name" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Email</label>
+            <input type="email" id="f-email" class="border-2 border-gray-200 rounded-xl px-4 py-3"
+              placeholder="Enter your email" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Address</label>
+            <textarea id="f-address" class="border-2 border-gray-200 rounded-xl px-4 py-3" rows="3"
+              placeholder="Enter your address"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">City</label>
+            <input type="text" id="f-city" class="border-2 border-gray-200 rounded-xl px-4 py-3"
+              placeholder="Enter your city" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Current Location</label>
+            <div class="flex gap-2">
+              <input type="text" id="f-location" class="border-2 border-gray-200 rounded-xl px-4 py-3"
+                placeholder="Latitude, Longitude" readonly />
+              <button id="btn-location" class="btn btn-primary">Get Location</button>
             </div>
-            <div>
-              <label class="block text-sm font-semibold mb-2">Email</label>
-              <input type="email" id="f-email" class="border-2 border-gray-200 rounded-xl px-4 py-3" placeholder="Enter your email" />
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-2">Address</label>
-              <textarea id="f-address" class="border-2 border-gray-200 rounded-xl px-4 py-3" rows="3" placeholder="Enter your address"></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-2">City</label>
-              <input type="text" id="f-city" class="border-2 border-gray-200 rounded-xl px-4 py-3" placeholder="Enter your city" />
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-2">Current Location</label>
-              <div class="flex gap-2">
-                <input type="text" id="f-location" class="border-2 border-gray-200 rounded-xl px-4 py-3" placeholder="Latitude, Longitude" readonly />
-                <button id="btn-location" class="btn btn-primary">Get Location</button>
-              </div>
-              <p class="text-xs text-gray-500 mt-1">This helps our delivery team locate you easily.</p>
-            </div>
-            <div class="pt-4">
-              <button id="btn-save" class="w-full btn btn-primary text-lg">Save Changes</button>
-            </div>
+            <p class="text-xs text-gray-500 mt-1">This helps our delivery team locate you easily.</p>
+          </div>
+          <div class="pt-4">
+            <button id="btn-save" class="w-full btn btn-primary text-lg">Save Changes</button>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <script type="module">
-      import { state, setCurrentUser, updateCustomer } from '../../assets/js/state.js';
-      if (!state.currentUser) { alert('User not found. Please login again.'); location.href = new URL('../login.html', window.location.href).href; }
-      const user = state.currentUser;
-      const fName = document.getElementById('f-name');
-      const fEmail = document.getElementById('f-email');
-      const fAddress = document.getElementById('f-address');
-      const fCity = document.getElementById('f-city');
-      const fLocation = document.getElementById('f-location');
-      const btnBack = document.getElementById('btn-back');
-      const btnSave = document.getElementById('btn-save');
-      const btnLocation = document.getElementById('btn-location');
+  <script type="module">
+    import { state, setCurrentUser, updateCustomer } from '../../assets/js/state.js';
+    import { showAlert } from '../../assets/js/ui.js';
+    if (!state.currentUser) { await showAlert('User not found. Please login again.', 'Error'); location.href = new URL('../login.html', window.location.href).href; }
+    const user = state.currentUser;
+    const fName = document.getElementById('f-name');
+    const fEmail = document.getElementById('f-email');
+    const fAddress = document.getElementById('f-address');
+    const fCity = document.getElementById('f-city');
+    const fLocation = document.getElementById('f-location');
+    const btnBack = document.getElementById('btn-back');
+    const btnSave = document.getElementById('btn-save');
+    const btnLocation = document.getElementById('btn-location');
 
-      function hydrate() {
-        fName.value = user.name || '';
-        fEmail.value = user.email || '';
-        fAddress.value = user.address || '';
-        fCity.value = user.city || '';
-        fLocation.value = user.currentLocation || '';
-      }
-      hydrate();
+    function hydrate() {
+      fName.value = user.name || '';
+      fEmail.value = user.email || '';
+      fAddress.value = user.address || '';
+      fCity.value = user.city || '';
+      fLocation.value = user.currentLocation || '';
+    }
+    hydrate();
 
-      btnBack.addEventListener('click', () => { location.href = new URL('./dashboard.html', window.location.href).href; });
-      btnSave.addEventListener('click', async () => {
-        if (!fName.value.trim() || !fAddress.value.trim() || !fCity.value.trim()) { alert('Please fill in all required fields.'); return; }
-        const updated = { ...user, name: fName.value.trim(), email: fEmail.value.trim(), address: fAddress.value.trim(), city: fCity.value.trim(), currentLocation: fLocation.value.trim() };
-        setCurrentUser(updated);
-        await updateCustomer(updated);
-        alert('Profile updated successfully');
-        location.href = new URL('./dashboard.html', window.location.href).href;
+    btnBack.addEventListener('click', () => { location.href = new URL('./dashboard.html', window.location.href).href; });
+    btnSave.addEventListener('click', async () => {
+      if (!fName.value.trim() || !fAddress.value.trim() || !fCity.value.trim()) { await showAlert('Please fill in all required fields.', 'Validation Error'); return; }
+      const updated = { ...user, name: fName.value.trim(), email: fEmail.value.trim(), address: fAddress.value.trim(), city: fCity.value.trim(), currentLocation: fLocation.value.trim() };
+      setCurrentUser(updated);
+      await updateCustomer(updated);
+      await showAlert('Profile updated successfully', 'Success');
+      location.href = new URL('./dashboard.html', window.location.href).href;
+    });
+    btnLocation.addEventListener('click', () => {
+      if (!navigator.geolocation) { showAlert('Geolocation not supported', 'Error'); return; }
+      btnLocation.disabled = true; btnLocation.textContent = 'Loading...';
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        fLocation.value = `${latitude}, ${longitude}`;
+        btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
+        await showAlert('Location updated', 'Success');
+      }, async (err) => {
+        console.error(err);
+        btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
+        await showAlert('Unable to retrieve location', 'Error');
       });
-      btnLocation.addEventListener('click', () => {
-        if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
-        btnLocation.disabled = true; btnLocation.textContent = 'Loading...';
-        navigator.geolocation.getCurrentPosition((pos) => {
-          const { latitude, longitude } = pos.coords;
-          fLocation.value = `${latitude}, ${longitude}`;
-          btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
-          alert('Location updated');
-        }, (err) => {
-          console.error(err);
-          btnLocation.disabled = false; btnLocation.textContent = 'Get Location';
-          alert('Unable to retrieve location');
-        });
-      });
-    </script>
-  </body>
+    });
+  </script>
+</body>
+
 </html>
