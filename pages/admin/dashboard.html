@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="../../assets/css/base.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../../config.js"></script>
 </head>
 
@@ -13,24 +14,47 @@
   <div id="navbar"></div>
   <main class="min-h-screen bg-gray-50">
     <div class="container py-8">
-      <h1 class="text-4xl font-bold text-cyan-600 mb-8">Admin Dashboard</h1>
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-cyan-600">Admin Dashboard</h1>
+        <div class="flex gap-2">
+          <button id="view-cards" class="btn btn-primary btn-sm">Cards</button>
+          <button id="view-charts" class="btn btn-secondary btn-sm">Charts</button>
+        </div>
+      </div>
 
-      <div class="grid grid-4 mb-8">
-        <div class="card card-gradient-cyan p-6">
+      <!-- METRIC CARDS VIEW -->
+      <div id="view-cards-container" class="grid grid-4 mb-8">
+        <div class="card card-gradient-cyan p-6 hover-lift">
           <p class="text-sm" style="opacity:.9">Total Customers</p>
           <p id="stat-total-customers" class="text-4xl font-bold">0</p>
         </div>
-        <div class="card card-gradient-red p-6">
+        <div class="card card-gradient-red p-6 hover-lift">
           <p class="text-sm" style="opacity:.9">Unpaid</p>
           <p id="stat-unpaid" class="text-4xl font-bold">0</p>
         </div>
-        <div class="card card-gradient-yellow p-6">
+        <div class="card card-gradient-yellow p-6 hover-lift">
           <p class="text-sm" style="opacity:.9">Pending Orders</p>
           <p id="stat-pending-orders" class="text-4xl font-bold">0</p>
         </div>
-        <div class="card card-gradient-green p-6">
+        <div class="card card-gradient-green p-6 hover-lift">
           <p class="text-sm" style="opacity:.9">Deliveries</p>
           <p id="stat-deliveries" class="text-4xl font-bold">0</p>
+        </div>
+      </div>
+
+      <!-- CHARTS VIEW (Hidden by default) -->
+      <div id="view-charts-container" class="grid grid-2 mb-8 hidden">
+        <div class="card p-6">
+          <h3 class="text-lg font-bold mb-4">Revenue Trend</h3>
+          <div style="height: 300px;">
+            <canvas id="chart-revenue"></canvas>
+          </div>
+        </div>
+        <div class="card p-6">
+          <h3 class="text-lg font-bold mb-4">Order Status</h3>
+          <div style="height: 300px;">
+            <canvas id="chart-orders"></canvas>
+          </div>
         </div>
       </div>
 
@@ -64,6 +88,7 @@
     import { renderNavbar, initPage } from '../../assets/js/ui.js';
     import { state } from '../../assets/js/state.js';
     import { checkRenewalStatus } from '../../assets/js/utils.js';
+    import { initCharts, renderRevenueChart, renderOrderStatusChart } from '../../assets/js/charts.js';
 
     async function renderDashboard() {
       const elTotalCustomers = document.getElementById('stat-total-customers');
@@ -79,18 +104,30 @@
       elPendingOrders.textContent = String(pendingOrders.length);
       elDeliveries.textContent = String(state.deliveries.length);
 
+      // Render Lists
+      renderLists(unpaidList, pendingOrders);
+
+      // Initialize Charts
+      initCharts();
+      renderCharts(pendingOrders);
+
+      // Setup View Toggles
+      setupViewToggles();
+    }
+
+    function renderLists(unpaidList, pendingOrders) {
       const listUnpaid = document.getElementById('list-unpaid');
       if (unpaidList.length === 0) {
         listUnpaid.innerHTML = '<p class="text-gray-500">All paid!</p>';
       } else {
         listUnpaid.innerHTML = unpaidList.slice(0, 5).map(c => `
-            <div class="bg-red-50 border-l-4 p-4 rounded-lg">
+            <div class="bg-red-50 border-l-4 p-4 rounded-lg hover-lift">
               <div class="flex justify-between items-center">
                 <div>
                   <p class="font-semibold">${c.name}</p>
                   <p class="text-sm text-red-600">${c.city || 'Unknown City'}</p>
                 </div>
-                <button class="btn btn-danger" onclick="location.href='./customer-detail.html?id=${c.id}'">View</button>
+                <button class="btn btn-danger btn-sm" onclick="location.href='./customer-detail.html?id=${c.id}'">View</button>
               </div>
             </div>
           `).join('');
@@ -101,17 +138,55 @@
         listOrders.innerHTML = '<p class="text-gray-500">No pending orders</p>';
       } else {
         listOrders.innerHTML = pendingOrders.slice(0, 5).map(o => `
-            <div class="bg-yellow-50 border-l-4 p-4 rounded-lg">
+            <div class="bg-yellow-50 border-l-4 p-4 rounded-lg hover-lift">
               <div class="flex justify-between items-center">
                 <div>
                   <p class="font-semibold">${o.customerName || 'Customer'}</p>
                   <p class="text-sm">${o.quantity} bottles — ${o.status}</p>
                 </div>
-                <span class="text-yellow-600 font-bold">Pending</span>
+                <span class="badge badge-pending">Pending</span>
               </div>
             </div>
           `).join('');
       }
+    }
+
+    function renderCharts(pendingOrders) {
+      // Order Status Data
+      const delivered = state.orders.filter(o => o.status === 'delivered').length;
+      const cancelled = state.orders.filter(o => o.status === 'cancelled').length;
+      renderOrderStatusChart('chart-orders', {
+        pending: pendingOrders.length,
+        delivered,
+        cancelled
+      });
+
+      // Revenue Data (Mocked for now based on payments)
+      // In a real app, we'd aggregate payments by date
+      const revenueData = [12000, 19000, 3000, 5000, 2000, 30000];
+      const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+      renderRevenueChart('chart-revenue', revenueData, labels);
+    }
+
+    function setupViewToggles() {
+      const btnCards = document.getElementById('view-cards');
+      const btnCharts = document.getElementById('view-charts');
+      const containerCards = document.getElementById('view-cards-container');
+      const containerCharts = document.getElementById('view-charts-container');
+
+      btnCards.addEventListener('click', () => {
+        containerCards.classList.remove('hidden');
+        containerCharts.classList.add('hidden');
+        btnCards.classList.replace('btn-secondary', 'btn-primary');
+        btnCharts.classList.replace('btn-primary', 'btn-secondary');
+      });
+
+      btnCharts.addEventListener('click', () => {
+        containerCharts.classList.remove('hidden');
+        containerCards.classList.add('hidden');
+        btnCharts.classList.replace('btn-secondary', 'btn-primary');
+        btnCards.classList.replace('btn-primary', 'btn-secondary');
+      });
     }
 
     if (await initPage({ requireAdmin: true })) {
