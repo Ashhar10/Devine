@@ -8,12 +8,16 @@ const router = express.Router();
 
 router.get('/', requireAuth, async (req, res) => {
   const role = req.user.role;
-  const query = 'SELECT id, customerId AS "customerId", quantity, liters, date, time FROM deliveries';
+  const query = `
+    SELECT d.id, d.customerId AS "customerId", d.quantity, d.liters, d.date, d.time, c.name AS "customerName"
+    FROM deliveries d
+    LEFT JOIN customers c ON d.customerId = c.id
+  `;
   let result;
   if (role === 'customer') {
-    result = await pool.query(`${query} WHERE customerId = $1 ORDER BY date DESC`, [req.user.id]);
+    result = await pool.query(`${query} WHERE d.customerId = $1 ORDER BY d.date DESC`, [req.user.id]);
   } else {
-    result = await pool.query(`${query} ORDER BY date DESC`);
+    result = await pool.query(`${query} ORDER BY d.date DESC`);
   }
   res.json(result.rows);
 });

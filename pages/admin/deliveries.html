@@ -62,7 +62,7 @@
       tbody.innerHTML = state.deliveries.map((d, idx) => `
           <tr class='${idx % 2 === 0 ? 'row-alt' : ''}'>
             <td>${d.date ? new Date(d.date).toLocaleDateString() : '-'}</td>
-            <td class='font-semibold'>${getCustomerName(d.customerId)}</td>
+            <td class='font-semibold'>${d.customerName || 'Unknown'}</td>
             <td>${d.quantity}</td>
             <td>${d.liters ? `${d.liters} L` : '-'}</td>
             <td class='text-green-600 font-bold'>Rs. ${d.quantity * PRICE_PER_BOTTLE}</td>
