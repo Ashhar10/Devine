@@ -27,10 +27,16 @@ function updateChartTheme() {
     const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim();
 
     Chart.helpers.each(Chart.instances, (chart) => {
-        chart.options.scales.x.grid.color = gridColor;
-        chart.options.scales.y.grid.color = gridColor;
-        chart.options.scales.x.ticks.color = textColor;
-        chart.options.scales.y.ticks.color = textColor;
+        if (chart.options.scales) {
+            if (chart.options.scales.x) {
+                chart.options.scales.x.grid.color = gridColor;
+                chart.options.scales.x.ticks.color = textColor;
+            }
+            if (chart.options.scales.y) {
+                chart.options.scales.y.grid.color = gridColor;
+                chart.options.scales.y.ticks.color = textColor;
+            }
+        }
         chart.update();
     });
 }
