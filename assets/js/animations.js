@@ -9,6 +9,35 @@ export function initInteractions() {
     initRippleEffect();
     initPageLoader();
     initInputAnimations();
+}
+
+/**
+ * Handle Global Page Loader
+ */
+function initPageLoader() {
+    const loader = document.getElementById('global-loader');
+    if (loader) {
+        const hideLoader = () => {
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }, 800);
+        };
+
+        if (document.readyState === 'complete') {
+            hideLoader();
+        } else {
+            window.addEventListener('load', hideLoader);
+        }
+    }
+}
+
+/**
+ * Add Material Design-like Ripple Effect to buttons
+ */
+function initRippleEffect() {
     document.addEventListener('click', function (e) {
         const target = e.target.closest('.btn');
         if (target) {
