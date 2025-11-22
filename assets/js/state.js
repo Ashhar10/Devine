@@ -13,25 +13,6 @@ export const state = {
   payments: [],
 };
 
-function getToken() { try { return localStorage.getItem(TOKEN_KEY) || null; } catch { return null; } }
-function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch { } }
-function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch { } }
-
-async function request(method, path, data) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {}),
-    },
-    body: data ? JSON.stringify(data) : undefined,
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Request failed: ${res.status}`);
-  }
-  return res.status === 204 ? null : res.json();
-}
 
 // Session helpers
 export function setUserType(type) { state.userType = type; }
