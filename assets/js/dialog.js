@@ -150,7 +150,6 @@ export async function showFormDialog(title, fields, customers = []) {
     titleEl.textContent = title;
 
     const form = document.createElement('form');
-    form.style.marginBottom = '1.5rem';
 
     const formData = {};
 
@@ -215,8 +214,10 @@ export async function showFormDialog(title, fields, customers = []) {
       form.appendChild(fieldDiv);
     });
 
+    // Actions div INSIDE the form
     const actions = document.createElement('div');
     actions.className = 'dialog-actions';
+    actions.style.marginTop = '1.5rem';
 
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
@@ -231,6 +232,9 @@ export async function showFormDialog(title, fields, customers = []) {
 
     actions.appendChild(cancelBtn);
     actions.appendChild(submitBtn);
+
+    // Add actions to form
+    form.appendChild(actions);
 
     form.onsubmit = (e) => {
       e.preventDefault();
@@ -277,7 +281,6 @@ export async function showFormDialog(title, fields, customers = []) {
 
     box.appendChild(titleEl);
     box.appendChild(form);
-    box.appendChild(actions);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
