@@ -94,18 +94,18 @@
     import { state, addCustomer, deleteCustomer } from '../../assets/js/state.js';
     import { checkRenewalStatus } from '../../assets/js/utils.js';
 
+    const tbody = document.getElementById('customers-tbody');
+    const openAdd = document.getElementById('btn-open-add');
+    const closeAdd = document.getElementById('btn-close-add');
+    const addModal = document.getElementById('add-modal');
+    const addBtn = document.getElementById('btn-add');
+
     // Initialize page with auth check
     if (!await initPage({ requireAdmin: true })) {
       // Redirect handled by initPage
     } else {
       renderCustomers();
     }
-
-    const tbody = document.getElementById('customers-tbody');
-    const openAdd = document.getElementById('btn-open-add');
-    const closeAdd = document.getElementById('btn-close-add');
-    const addModal = document.getElementById('add-modal');
-    const addBtn = document.getElementById('btn-add');
 
     function renderCustomers() {
       if (state.customers.length === 0) {
@@ -146,7 +146,7 @@
       });
     }
 
-    renderCustomers();
+    // renderCustomers(); // Called in init block
 
     openAdd.addEventListener('click', () => { addModal.classList.remove('hidden'); });
     closeAdd.addEventListener('click', () => { addModal.classList.add('hidden'); });

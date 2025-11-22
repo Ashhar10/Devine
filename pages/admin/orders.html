@@ -1,38 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Orders</title>
-    <link rel="stylesheet" href="../../assets/css/base.css" />
-    <script src="../../config.js"></script>
-  </head>
-  <body>
-    <div id="navbar"></div>
-    <main class="min-h-screen bg-gray-50">
-      <div class="container py-8">
-        <div class="flex justify-between mb-6">
-          <button class="text-cyan-600 font-semibold" onclick="location.href='./dashboard.html'">← Back to Dashboard</button>
-          <button id="btn-add-order" class="btn btn-primary">➕ Add Order</button>
-        </div>
 
-        <h2 class="text-4xl font-bold text-cyan-600 mb-6">All Orders</h2>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Orders</title>
+  <link rel="stylesheet" href="../../assets/css/base.css" />
+  <script src="../../config.js"></script>
+</head>
 
-        <div class="card p-6">
-          <div id="orders-list" class="space-y-4"></div>
-        </div>
+<body>
+  <div id="navbar"></div>
+  <main class="min-h-screen bg-gray-50">
+    <div class="container py-8">
+      <div class="flex justify-between mb-6">
+        <button class="text-cyan-600 font-semibold" onclick="location.href='./dashboard.html'">← Back to
+          Dashboard</button>
+        <button id="btn-add-order" class="btn btn-primary">➕ Add Order</button>
       </div>
-    </main>
 
-    <script type="module">
-      import { renderNavbar } from '../../assets/js/ui.js';
-      import { state, placeOrder, markOrderDelivered } from '../../assets/js/state.js';
-      renderNavbar({ isAdmin: true });
+      <h2 class="text-4xl font-bold text-cyan-600 mb-6">All Orders</h2>
 
-      const list = document.getElementById('orders-list');
-      function renderOrders() {
-        if (state.orders.length === 0) { list.innerHTML = `<p class='text-gray-500 text-center py-8'>No orders found.</p>`; return; }
-        list.innerHTML = state.orders.map(order => `
+      <div class="card p-6">
+        <div id="orders-list" class="space-y-4"></div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { renderNavbar, initPage } from '../../assets/js/ui.js';
+    import { state, placeOrder, markOrderDelivered } from '../../assets/js/state.js';
+
+    const list = document.getElementById('orders-list');
+
+    // Initialize page with auth check
+    if (!await initPage({ requireAdmin: true })) {
+      // Redirect handled by initPage
+    } else {
+      renderOrders();
+    }
+
+    function renderOrders() {
+      if (state.orders.length === 0) { list.innerHTML = `<p class='text-gray-500 text-center py-8'>No orders found.</p>`; return; }
+      list.innerHTML = state.orders.map(order => `
           <div class="p-6 rounded-xl border-l-4 ${order.status === 'pending' ? 'bg-yellow-50' : 'bg-cyan-50'}">
             <div class="flex justify-between">
               <div>
@@ -47,27 +57,27 @@
             </div>
           </div>
         `).join('');
-        Array.from(document.querySelectorAll('[data-deliver]')).forEach(b => {
-          b.addEventListener('click', async () => {
-            const id = Number(b.getAttribute('data-deliver'));
-            if (confirm('Mark this order as delivered?')) {
-              await markOrderDelivered(id);
-              renderOrders();
-              alert('Order marked as delivered');
-            }
-          });
+      Array.from(document.querySelectorAll('[data-deliver]')).forEach(b => {
+        b.addEventListener('click', async () => {
+          const id = Number(b.getAttribute('data-deliver'));
+          if (confirm('Mark this order as delivered?')) {
+            await markOrderDelivered(id);
+            renderOrders();
+            alert('Order marked as delivered');
+          }
         });
-      }
-      renderOrders();
-
-      document.getElementById('btn-add-order').addEventListener('click', async () => {
-        const customerId = prompt('Enter Customer ID');
-        const qty = prompt('Enter quantity');
-        if (!customerId || !qty || Number(qty) <= 0) { alert('Please enter valid values'); return; }
-        await placeOrder(Number(customerId), Number(qty));
-        renderOrders();
-        alert('Order added successfully');
       });
-    </script>
-  </body>
+    }
+
+    document.getElementById('btn-add-order').addEventListener('click', async () => {
+      const customerId = prompt('Enter Customer ID');
+      const qty = prompt('Enter quantity');
+      if (!customerId || !qty || Number(qty) <= 0) { alert('Please enter valid values'); return; }
+      await placeOrder(Number(customerId), Number(qty));
+      renderOrders();
+      alert('Order added successfully');
+    });
+  </script>
+</body>
+
 </html>
