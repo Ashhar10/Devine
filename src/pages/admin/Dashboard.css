@@ -6,6 +6,23 @@
     gap: 2rem;
 }
 
+/* Loading & Error States */
+.loading-state {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+}
+
+.error-banner {
+    padding: 1rem 1.5rem;
+    background: #FEE2E2;
+    color: #DC2626;
+    border-radius: var(--radius-md);
+    border-left: 4px solid #DC2626;
+    margin-bottom: 1.5rem;
+}
+
 /* Metrics Grid */
 .metrics-grid {
     display: grid;
