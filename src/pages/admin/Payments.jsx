@@ -102,7 +102,7 @@ const Payments = () => {
                                     <tr key={payment.id}>
                                         <td>#{payment.id}</td>
                                         <td>{getCustomerName(payment.customerid || payment.customerId)}</td>
-                                        <td>${parseFloat(payment.amount).toFixed(2)}</td>
+                                        <td>PKR {parseFloat(payment.amount).toLocaleString()}</td>
                                         <td>
                                             <span className="badge badge-success">{payment.method}</span>
                                         </td>

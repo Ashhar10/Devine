@@ -49,7 +49,6 @@ const Login = () => {
         setLoading(true)
         try {
             if (mode === 'signup') {
-                // TODO: Implement signup API call
                 setError('Signup not yet implemented')
             } else {
                 if (loginType === 'admin') {
@@ -75,9 +74,24 @@ const Login = () => {
         setConfirmPassword('')
     }
 
+    // Determine input type and placeholder based on mode and login type
+    const getInputType = () => {
+        if (mode === 'signup') return 'email'
+        if (loginType === 'admin') return 'text'
+        if (loginType === 'customer') return 'tel'
+        return 'email'
+    }
+
+    const getInputPlaceholder = () => {
+        if (mode === 'signup') return 'Email Address'
+        if (loginType === 'admin') return 'Username'
+        if (loginType === 'customer') return 'Phone Number'
+        return 'Email Address'
+    }
+
     return (
         <div className="login-page">
-            {/* Decorative Background with your PNG images */}
+            {/* Decorative Background with PNG images */}
             <div className="decorative-bg">
                 <img src="/assets/icon-1.png" className="floating-icon icon-1" alt="" />
                 <img src="/assets/icon-2.png" className="floating-icon icon-2" alt="" />
@@ -140,10 +154,10 @@ const Login = () => {
                     <form onSubmit={handleSubmit} className="login-form">
                         <div className="input-group">
                             <input
-                                type={mode === 'login' && loginType === 'admin' ? 'text' : 'email'}
+                                type={getInputType()}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder={mode === 'login' && loginType === 'admin' ? 'Username' : 'Email Address'}
+                                placeholder={getInputPlaceholder()}
                                 disabled={loading}
                             />
                         </div>

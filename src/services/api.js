@@ -1,4 +1,4 @@
-// API client service - converted from devine-old/assets/js/state.js
+// API client service
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'
 const TOKEN_KEY = 'devine_token_v1'
 
