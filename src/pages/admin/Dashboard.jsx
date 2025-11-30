@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout'
-import { fetchAllData } from '../../services/api'
+import ChartCard from '../../components/charts/ChartCard'
+import PieChartComponent from '../../components/charts/PieChartComponent'
+import LineChartComponent from '../../components/charts/LineChartComponent'
+import BarChartComponent from '../../components/charts/BarChartComponent'
 import * as api from '../../services/api'
 import './Dashboard.css'
 
@@ -23,11 +26,8 @@ const AdminDashboard = () => {
             setLoading(true)
             setError('')
 
-            // Fetch stats from backend
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/stats`, {
-                headers: {
-                    'Authorization': `Bearer ${api.getToken()}`
-                }
+                headers: { 'Authorization': `Bearer ${api.getToken()}` }
             })
 
             if (!response.ok) throw new Error('Failed to fetch stats')
@@ -97,27 +97,29 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* Charts Grid - To be implemented in Phase 5 */}
+                {/* Charts Grid */}
                 <div className="charts-grid">
-                    <div className="chart-card">
-                        <h3 className="chart-title">Overview</h3>
-                        <p className="chart-placeholder">Charts coming in Phase 5</p>
-                    </div>
+                    <ChartCard title="Inventory Status">
+                        <PieChartComponent
+                            data={[stats.totalStock, stats.outOfStock, stats.totalOrders]}
+                            labels={['In Stock', 'Out of Stock', 'Pending Orders']}
+                        />
+                    </ChartCard>
 
-                    <div className="chart-card">
-                        <h3 className="chart-title">Inventory Values</h3>
-                        <p className="chart-placeholder">Pie Chart</p>
-                    </div>
+                    <ChartCard title="Customer Overview">
+                        <PieChartComponent
+                            data={[stats.totalCustomers - stats.outOfStock, stats.outOfStock]}
+                            labels={['Active Customers', 'Needs Restock']}
+                        />
+                    </ChartCard>
 
-                    <div className="chart-card chart-wide">
-                        <h3 className="chart-title">Expense vs Profit</h3>
-                        <p className="chart-placeholder">Line Chart</p>
-                    </div>
+                    <ChartCard title="Expense vs Revenue" wide>
+                        <LineChartComponent />
+                    </ChartCard>
 
-                    <div className="chart-card">
-                        <h3 className="chart-title">Top 10 Customers by Consumption</h3>
-                        <p className="chart-placeholder">Bar Chart</p>
-                    </div>
+                    <ChartCard title="Top 5 Customers by Bottles">
+                        <BarChartComponent />
+                    </ChartCard>
                 </div>
             </div>
         </AdminLayout>
