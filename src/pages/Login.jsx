@@ -6,9 +6,9 @@ import './Login.css'
 const Login = () => {
     const { loginAdmin, loginCustomer, isAuthenticated } = useAuth()
     const navigate = useNavigate()
-    const [mode, setMode] = useState('login') // 'login' or 'signup'
+    const [mode, setMode] = useState('login')
     const [loginType, setLoginType] = useState('admin')
-    const [email, setEmail] = useState('')
+    const [phoneOrEmail, setPhoneOrEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -30,7 +30,7 @@ const Login = () => {
         e.preventDefault()
         setError('')
 
-        if (!email || !password) {
+        if (!phoneOrEmail || !password) {
             setError('Please enter all credentials')
             return
         }
@@ -52,10 +52,11 @@ const Login = () => {
                 setError('Signup not yet implemented')
             } else {
                 if (loginType === 'admin') {
-                    await loginAdmin(email, password)
+                    await loginAdmin(phoneOrEmail, password)
                     navigate('/admin/dashboard')
                 } else {
-                    await loginCustomer(email, password)
+                    // Customer login with phone number
+                    await loginCustomer(phoneOrEmail, password)
                     navigate('/customer/dashboard')
                 }
             }
@@ -69,29 +70,13 @@ const Login = () => {
     const switchMode = () => {
         setMode(mode === 'login' ? 'signup' : 'login')
         setError('')
-        setEmail('')
+        setPhoneOrEmail('')
         setPassword('')
         setConfirmPassword('')
     }
 
-    // Determine input type and placeholder based on mode and login type
-    const getInputType = () => {
-        if (mode === 'signup') return 'email'
-        if (loginType === 'admin') return 'text'
-        if (loginType === 'customer') return 'tel'
-        return 'email'
-    }
-
-    const getInputPlaceholder = () => {
-        if (mode === 'signup') return 'Email Address'
-        if (loginType === 'admin') return 'Username'
-        if (loginType === 'customer') return 'Phone Number'
-        return 'Email Address'
-    }
-
     return (
         <div className="login-page">
-            {/* Decorative Background with PNG images */}
             <div className="decorative-bg">
                 <img src="/assets/icon-1.png" className="floating-icon icon-1" alt="" />
                 <img src="/assets/icon-2.png" className="floating-icon icon-2" alt="" />
@@ -100,13 +85,11 @@ const Login = () => {
 
             <div className="login-container">
                 <div className="login-card">
-                    {/* Header */}
                     <div className="login-header">
                         <h1>{mode === 'login' ? 'Welcome back!' : 'Hello!'}</h1>
                         <p>Lorem ipsum dolor sit amet, consectetur</p>
                     </div>
 
-                    {/* Tab Navigation */}
                     <div className="tab-navigation">
                         <button
                             className={`tab ${mode === 'login' ? 'active' : ''}`}
@@ -124,7 +107,6 @@ const Login = () => {
                         </button>
                     </div>
 
-                    {/* Admin/Customer Toggle (Only for Login) */}
                     {mode === 'login' && (
                         <div className="user-type-toggle">
                             <label>
@@ -150,15 +132,21 @@ const Login = () => {
                         </div>
                     )}
 
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="login-form">
+                    <form onSubmit={handleSubmit} className="login-form" noValidate>
                         <div className="input-group">
                             <input
-                                type={getInputType()}
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder={getInputPlaceholder()}
+                                type={mode === 'signup' ? 'email' : 'text'}
+                                value={phoneOrEmail}
+                                onChange={(e) => setPhoneOrEmail(e.target.value)}
+                                placeholder={
+                                    mode === 'signup'
+                                        ? 'Email Address'
+                                        : loginType === 'admin'
+                                            ? 'Username'
+                                            : 'Phone Number'
+                                }
                                 disabled={loading}
+                                autoComplete="off"
                             />
                         </div>
 
@@ -204,14 +192,17 @@ const Login = () => {
                             {loading ? 'Please wait...' : mode === 'login' ? 'LOGIN' : 'SIGN UP'}
                         </button>
 
-                        {mode === 'login' && loginType === 'admin' && (
+                        {mode === 'login' && (
                             <div className="helper-text">
-                                <p>Default: admin / Admin123</p>
+                                <p>
+                                    {loginType === 'admin'
+                                        ? 'Default: admin / Admin123'
+                                        : 'Use your phone number to login'}
+                                </p>
                             </div>
                         )}
                     </form>
 
-                    {/* Mode Switch Link */}
                     <div className="mode-switch">
                         <button onClick={switchMode} type="button">
                             {mode === 'login' ? 'SIGN UP' : 'SIGN IN'}
