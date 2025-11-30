@@ -11,7 +11,6 @@ const AdminLayout = ({ children, pageTitle }) => {
         <div className="admin-layout">
             <Sidebar collapsed={sidebarCollapsed} mobileOpen={mobileSidebarOpen} />
 
-            {/* Mobile Overlay */}
             {mobileSidebarOpen && (
                 <div
                     className="mobile-overlay"
@@ -20,7 +19,6 @@ const AdminLayout = ({ children, pageTitle }) => {
             )}
 
             <div className={`admin-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-                {/* Top Header */}
                 <header className="admin-header">
                     <button
                         className="menu-toggle-btn"
@@ -35,14 +33,13 @@ const AdminLayout = ({ children, pageTitle }) => {
                         {mobileSidebarOpen ? <MdClose size={24} /> : <MdMenu size={24} />}
                     </button>
 
-                    <h1 className="page-title">{pageTitle || 'Dashboard'}</h1>
+                    <h2 className="page-title">{pageTitle || 'Dashboard'}</h2>
 
                     <div className="header-actions">
                         <span className="current-year">{new Date().getFullYear()}</span>
                     </div>
                 </header>
 
-                {/* Main Content */}
                 <main className="page-content">
                     {children}
                 </main>

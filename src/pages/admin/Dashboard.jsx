@@ -49,7 +49,7 @@ const AdminDashboard = () => {
 
     if (loading) {
         return (
-            <AdminLayout pageTitle="Inventory Management">
+            <AdminLayout pageTitle="Water Management Dashboard">
                 <div className="dashboard-container">
                     <div className="loading-state">Loading dashboard...</div>
                 </div>
@@ -58,14 +58,14 @@ const AdminDashboard = () => {
     }
 
     return (
-        <AdminLayout pageTitle="Inventory Management">
+        <AdminLayout pageTitle="Water Management Dashboard">
             <div className="dashboard-container">
                 {error && <div className="error-banner">{error}</div>}
 
                 {/* Metric Cards Row */}
                 <div className="metrics-grid">
                     <div className="metric-card metric-green">
-                        <div className="metric-icon">📦</div>
+                        <div className="metric-icon">💧</div>
                         <div className="metric-content">
                             <div className="metric-value">{stats.totalCustomers}</div>
                             <div className="metric-label">Total Customers</div>
@@ -73,18 +73,18 @@ const AdminDashboard = () => {
                     </div>
 
                     <div className="metric-card metric-blue">
-                        <div className="metric-icon">🛒</div>
+                        <div className="metric-icon">📦</div>
                         <div className="metric-content">
                             <div className="metric-value">{stats.totalOrders}</div>
-                            <div className="metric-label">Orders</div>
+                            <div className="metric-label">Water Orders</div>
                         </div>
                     </div>
 
                     <div className="metric-card metric-purple">
-                        <div className="metric-icon">📊</div>
+                        <div className="metric-icon">🚰</div>
                         <div className="metric-content">
                             <div className="metric-value">{stats.totalStock}</div>
-                            <div className="metric-label">Total Stock (Bottles)</div>
+                            <div className="metric-label">Available Bottles</div>
                         </div>
                     </div>
 
@@ -92,17 +92,17 @@ const AdminDashboard = () => {
                         <div className="metric-icon">⚠️</div>
                         <div className="metric-content">
                             <div className="metric-value">{stats.outOfStock}</div>
-                            <div className="metric-label">Out of Stock</div>
+                            <div className="metric-label">Needs Refill</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Charts Grid */}
                 <div className="charts-grid">
-                    <ChartCard title="Inventory Status">
+                    <ChartCard title="Water Supply Status">
                         <PieChartComponent
                             data={[stats.totalStock, stats.outOfStock, stats.totalOrders]}
-                            labels={['In Stock', 'Out of Stock', 'Pending Orders']}
+                            labels={['Available Bottles', 'Needs Refill', 'Pending Orders']}
                         />
                     </ChartCard>
 
@@ -113,11 +113,11 @@ const AdminDashboard = () => {
                         />
                     </ChartCard>
 
-                    <ChartCard title="Expense vs Revenue" wide>
+                    <ChartCard title="Revenue Trend" wide>
                         <LineChartComponent />
                     </ChartCard>
 
-                    <ChartCard title="Top 5 Customers by Bottles">
+                    <ChartCard title="Top 5 Customers by Consumption">
                         <BarChartComponent />
                     </ChartCard>
                 </div>
