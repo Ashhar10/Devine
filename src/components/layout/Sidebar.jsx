@@ -1,16 +1,14 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
-    MdDashboard,
-    MdInventory,
-    MdShoppingCart,
-    MdLocalShipping,
-    MdBarChart,
-    MdHelp,
-    MdSettings,
-    MdLogout,
-    MdPerson
-} from 'react-icons/md'
+    FiHome,
+    FiUsers,
+    FiShoppingCart,
+    FiTruck,
+    FiDollarSign,
+    FiLogOut
+} from 'react-icons/fi'
+import { MdPerson } from 'react-icons/md'
 import './Sidebar.css'
 
 const Sidebar = ({ collapsed, mobileOpen }) => {
@@ -19,12 +17,11 @@ const Sidebar = ({ collapsed, mobileOpen }) => {
     const { user, logout } = useAuth()
 
     const menuItems = [
-        { path: '/admin/dashboard', icon: MdDashboard, label: 'Dashboard' },
-        { path: '/admin/customers', icon: MdInventory, label: 'Inventory' },
-        { path: '/admin/orders', icon: MdShoppingCart, label: 'Orders' },
-        { path: '/admin/deliveries', icon: MdLocalShipping, label: 'Purchase' },
-        { path: '/admin/payments', icon: MdBarChart, label: 'Reporting' },
-        { path: '/admin/support', icon: MdHelp, label: 'Support' },
+        { path: '/admin/dashboard', icon: FiHome, label: 'Dashboard' },
+        { path: '/admin/customers', icon: FiUsers, label: 'Customers' },
+        { path: '/admin/orders', icon: FiShoppingCart, label: 'Orders' },
+        { path: '/admin/deliveries', icon: FiTruck, label: 'Deliveries' },
+        { path: '/admin/payments', icon: FiDollarSign, label: 'Payments' },
     ]
 
     const handleLogout = async () => {
@@ -41,8 +38,8 @@ const Sidebar = ({ collapsed, mobileOpen }) => {
                 </div>
                 {!collapsed && (
                     <div className="profile-info">
-                        <h3>{user?.username || 'Nirmal Kumar P'}</h3>
-                        <p className="profile-role">UIUXDesigner</p>
+                        <h3>{user?.username || 'Admin'}</h3>
+                        <p className="profile-role">Administrator</p>
                     </div>
                 )}
             </div>
@@ -67,23 +64,14 @@ const Sidebar = ({ collapsed, mobileOpen }) => {
                 })}
             </nav>
 
-            {/* Settings & Logout */}
+            {/* Logout */}
             <div className="sidebar-bottom">
-                <Link
-                    to="/admin/settings"
-                    className={`nav-item ${location.pathname === '/admin/settings' ? 'active' : ''}`}
-                    title={collapsed ? 'Settings' : ''}
-                >
-                    <MdSettings className="nav-icon" size={20} />
-                    {!collapsed && <span className="nav-label">Settings</span>}
-                </Link>
-
                 <button
                     onClick={handleLogout}
                     className="nav-item logout-btn"
                     title={collapsed ? 'Logout' : ''}
                 >
-                    <MdLogout className="nav-icon" size={20} />
+                    <FiLogOut className="nav-icon" size={20} />
                     {!collapsed && <span className="nav-label">Logout</span>}
                 </button>
             </div>
