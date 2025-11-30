@@ -14,7 +14,6 @@ const CustomerDashboard = () => {
     const [payments, setPayments] = useState([])
     const [error, setError] = useState('')
     const [darkMode, setDarkMode] = useState(false)
-
     const [sectionsOpen, setSectionsOpen] = useState({
         orders: true,
         deliveries: true,
@@ -45,9 +44,9 @@ const CustomerDashboard = () => {
                 const { data, timestamp } = JSON.parse(cached)
                 if (Date.now() - timestamp < CACHE_DURATION) {
                     setCustomerData(data.customer)
-                    setOrders(data.orders)
-                    setDeliveries(data.deliveries)
-                    setPayments(data.payments)
+                    setOrders(data.orders || [])
+                    setDeliveries(data.deliveries || [])
+                    setPayments(data.payments || [])
                     setLoading(false)
                     return
                 }
@@ -77,9 +76,9 @@ const CustomerDashboard = () => {
             const allPayments = await paymentsRes.json()
 
             const customerId = user.id
-            const filteredOrders = allOrders.filter(o => (o.customerid || o.customerId) === customerId)
-            const filteredDeliveries = allDeliveries.filter(d => (d.customerid || d.customerId) === customerId)
-            const filteredPayments = allPayments.filter(p => (p.customerid || p.customerId) === customerId)
+            const filteredOrders = Array.isArray(allOrders) ? allOrders.filter(o => (o.customerid || o.customerId) === customerId) : []
+            const filteredDeliveries = Array.isArray(allDeliveries) ? allDeliveries.filter(d => (d.customerid || d.customerId) === customerId) : []
+            const filteredPayments = Array.isArray(allPayments) ? allPayments.filter(p => (p.customerid || p.customerId) === customerId) : []
 
             setCustomerData(customer)
             setOrders(filteredOrders)
